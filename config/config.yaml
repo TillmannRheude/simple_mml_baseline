@@ -1,0 +1,18 @@
+defaults:
+  - _self_
+  - modelname: transformer
+
+dataset: "mimic_symile"  # mimic_symile / mimic_haim / fmnist / mnist / mosi / mosei
+missing:  # e.g. 2 modalities -> 1 list entry -> defines the percentage of one modality missing
+  missing_train: [0.3]
+  missing_valid: [0.3]
+  missing_test: [0.0]
+
+batch_size: 64
+
+seed: 420
+precision: "bf16-mixed"  # 32
+max_epochs: 20
+wandb:
+  project: "simple_mml_baseline"
+  group: None

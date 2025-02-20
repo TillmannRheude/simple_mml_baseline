@@ -1,0 +1,15 @@
+{"time":"2025-02-18T09:25:14.808780504+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T09:25:14.808795863+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_092514-mawl2tsv/logs/debug-core.log"}
+{"time":"2025-02-18T09:25:14.920983022+01:00","level":"INFO","msg":"created new stream","id":"mawl2tsv"}
+{"time":"2025-02-18T09:25:14.92101381+01:00","level":"INFO","msg":"stream: started","id":"mawl2tsv"}
+{"time":"2025-02-18T09:25:14.921057602+01:00","level":"INFO","msg":"sender: started","stream_id":"mawl2tsv"}
+{"time":"2025-02-18T09:25:14.921036663+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"mawl2tsv"}}
+{"time":"2025-02-18T09:25:14.921069755+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"mawl2tsv"}}
+{"time":"2025-02-18T09:25:15.444668618+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T09:25:15.444696912+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T09:25:15.444735524+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T09:25:18.380949963+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-18T09:25:18.380972455+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-18T09:25:18.620663263+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-18T09:25:18.625367311+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-18T09:25:18.885420058+01:00","level":"INFO","msg":"Pausing system monitor"}

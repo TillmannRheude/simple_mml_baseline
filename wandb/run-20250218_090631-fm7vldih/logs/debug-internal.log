@@ -1,0 +1,11 @@
+{"time":"2025-02-18T09:06:31.577389704+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T09:06:31.577402077+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_090631-fm7vldih/logs/debug-core.log"}
+{"time":"2025-02-18T09:06:31.691702053+01:00","level":"INFO","msg":"created new stream","id":"fm7vldih"}
+{"time":"2025-02-18T09:06:31.69173255+01:00","level":"INFO","msg":"stream: started","id":"fm7vldih"}
+{"time":"2025-02-18T09:06:31.691776303+01:00","level":"INFO","msg":"sender: started","stream_id":"fm7vldih"}
+{"time":"2025-02-18T09:06:31.691762126+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"fm7vldih"}}
+{"time":"2025-02-18T09:06:31.691759421+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"fm7vldih"}}
+{"time":"2025-02-18T09:06:32.140867856+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T09:06:32.140898183+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T09:06:32.140937948+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T09:06:55.114960701+01:00","level":"INFO","msg":"Pausing system monitor"}

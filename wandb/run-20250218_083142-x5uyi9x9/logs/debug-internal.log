@@ -1,0 +1,10 @@
+{"time":"2025-02-18T08:31:42.434310862+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T08:31:42.434323315+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_083142-x5uyi9x9/logs/debug-core.log"}
+{"time":"2025-02-18T08:31:42.549110738+01:00","level":"INFO","msg":"created new stream","id":"x5uyi9x9"}
+{"time":"2025-02-18T08:31:42.549145283+01:00","level":"INFO","msg":"stream: started","id":"x5uyi9x9"}
+{"time":"2025-02-18T08:31:42.54918595+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"x5uyi9x9"}}
+{"time":"2025-02-18T08:31:42.550502889+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"x5uyi9x9"}}
+{"time":"2025-02-18T08:31:42.550499983+01:00","level":"INFO","msg":"sender: started","stream_id":"x5uyi9x9"}
+{"time":"2025-02-18T08:31:42.944262203+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T08:31:42.945212241+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T08:31:42.945924743+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}

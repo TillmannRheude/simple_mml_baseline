@@ -1,0 +1,10 @@
+{"time":"2025-02-18T09:56:08.691164986+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T09:56:08.691181818+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_095608-irg88mjw/logs/debug-core.log"}
+{"time":"2025-02-18T09:56:08.803438356+01:00","level":"INFO","msg":"created new stream","id":"irg88mjw"}
+{"time":"2025-02-18T09:56:08.803473172+01:00","level":"INFO","msg":"stream: started","id":"irg88mjw"}
+{"time":"2025-02-18T09:56:08.803494602+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"irg88mjw"}}
+{"time":"2025-02-18T09:56:08.803582798+01:00","level":"INFO","msg":"sender: started","stream_id":"irg88mjw"}
+{"time":"2025-02-18T09:56:08.803533816+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"irg88mjw"}}
+{"time":"2025-02-18T09:56:09.158086805+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T09:56:09.158116451+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T09:56:09.158153491+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}

@@ -1,0 +1,21 @@
+{"time":"2025-02-20T11:16:52.579917652+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:16:52.579929334+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_111652-ufer1rvk/logs/debug-core.log"}
+{"time":"2025-02-20T11:16:52.69635932+01:00","level":"INFO","msg":"created new stream","id":"ufer1rvk"}
+{"time":"2025-02-20T11:16:52.696383345+01:00","level":"INFO","msg":"stream: started","id":"ufer1rvk"}
+{"time":"2025-02-20T11:16:52.696407501+01:00","level":"INFO","msg":"sender: started","stream_id":"ufer1rvk"}
+{"time":"2025-02-20T11:16:52.696409615+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"ufer1rvk"}}
+{"time":"2025-02-20T11:16:52.69640176+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"ufer1rvk"}}
+{"time":"2025-02-20T11:16:53.053483422+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:16:53.053499983+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:16:53.053534167+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:16:55.310402943+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T11:19:23.977148527+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T11:19:24.44902746+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-20T11:19:24.449586861+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-20T11:19:25.449293221+01:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact source-simple_mml_baseline-_sc-projects_sc-proj-ukb-cvd_projects_simple_mml_baseline_tr_main.ipynb","runtime_seconds":1.007545735,"subtasks":[{"desc":"_session_history.ipynb","runtime_seconds":0.276365421,"progress":"12.8KB/12.8KB"},{"desc":"main.ipynb","runtime_seconds":0.276358558,"progress":"6.0KB/6.0KB"}]}],"total_operations":1}}
+{"time":"2025-02-20T11:19:28.939572074+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-20T11:19:30.114293213+01:00","level":"INFO","msg":"stream: closing","id":"ufer1rvk"}
+{"time":"2025-02-20T11:19:30.11430763+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"ufer1rvk"}}
+{"time":"2025-02-20T11:19:30.11431835+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"ufer1rvk"}}
+{"time":"2025-02-20T11:19:30.114375628+01:00","level":"INFO","msg":"sender: closed","stream_id":"ufer1rvk"}
+{"time":"2025-02-20T11:19:30.116057066+01:00","level":"INFO","msg":"stream: closed","id":"ufer1rvk"}

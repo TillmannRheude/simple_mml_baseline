@@ -1,0 +1,10 @@
+{"time":"2025-02-20T11:38:26.676715311+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:38:26.676730439+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_113826-xqet1t74/logs/debug-core.log"}
+{"time":"2025-02-20T11:38:26.787602147+01:00","level":"INFO","msg":"created new stream","id":"xqet1t74"}
+{"time":"2025-02-20T11:38:26.787634668+01:00","level":"INFO","msg":"stream: started","id":"xqet1t74"}
+{"time":"2025-02-20T11:38:26.787670305+01:00","level":"INFO","msg":"sender: started","stream_id":"xqet1t74"}
+{"time":"2025-02-20T11:38:26.787655728+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"xqet1t74"}}
+{"time":"2025-02-20T11:38:26.787667069+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"xqet1t74"}}
+{"time":"2025-02-20T11:38:27.197505753+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:38:27.197543103+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:38:27.197590192+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}

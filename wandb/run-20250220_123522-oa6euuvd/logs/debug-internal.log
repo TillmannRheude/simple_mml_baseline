@@ -1,0 +1,11 @@
+{"time":"2025-02-20T12:35:22.883398811+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T12:35:22.88341442+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_123522-oa6euuvd/logs/debug-core.log"}
+{"time":"2025-02-20T12:35:22.997556701+01:00","level":"INFO","msg":"created new stream","id":"oa6euuvd"}
+{"time":"2025-02-20T12:35:22.997595665+01:00","level":"INFO","msg":"stream: started","id":"oa6euuvd"}
+{"time":"2025-02-20T12:35:22.997616624+01:00","level":"INFO","msg":"sender: started","stream_id":"oa6euuvd"}
+{"time":"2025-02-20T12:35:22.997614149+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"oa6euuvd"}}
+{"time":"2025-02-20T12:35:22.997732502+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"oa6euuvd"}}
+{"time":"2025-02-20T12:35:23.342500051+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T12:35:23.342522172+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T12:35:23.342560204+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T12:35:29.789833015+01:00","level":"INFO","msg":"Pausing system monitor"}

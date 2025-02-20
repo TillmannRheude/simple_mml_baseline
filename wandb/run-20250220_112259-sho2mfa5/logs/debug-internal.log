@@ -1,0 +1,11 @@
+{"time":"2025-02-20T11:22:59.934588997+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:22:59.934603744+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_112259-sho2mfa5/logs/debug-core.log"}
+{"time":"2025-02-20T11:23:00.04709691+01:00","level":"INFO","msg":"created new stream","id":"sho2mfa5"}
+{"time":"2025-02-20T11:23:00.047123991+01:00","level":"INFO","msg":"stream: started","id":"sho2mfa5"}
+{"time":"2025-02-20T11:23:00.047169065+01:00","level":"INFO","msg":"sender: started","stream_id":"sho2mfa5"}
+{"time":"2025-02-20T11:23:00.04714473+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"sho2mfa5"}}
+{"time":"2025-02-20T11:23:00.047159427+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"sho2mfa5"}}
+{"time":"2025-02-20T11:23:00.463019369+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:23:00.46304688+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:23:00.463087376+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:23:02.898280845+01:00","level":"INFO","msg":"Pausing system monitor"}

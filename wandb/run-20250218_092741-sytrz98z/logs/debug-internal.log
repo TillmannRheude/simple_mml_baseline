@@ -1,0 +1,10 @@
+{"time":"2025-02-18T09:27:41.782023286+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T09:27:41.782038886+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_092741-sytrz98z/logs/debug-core.log"}
+{"time":"2025-02-18T09:27:41.896160788+01:00","level":"INFO","msg":"created new stream","id":"sytrz98z"}
+{"time":"2025-02-18T09:27:41.896185815+01:00","level":"INFO","msg":"stream: started","id":"sytrz98z"}
+{"time":"2025-02-18T09:27:41.896197567+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"sytrz98z"}}
+{"time":"2025-02-18T09:27:41.896220129+01:00","level":"INFO","msg":"sender: started","stream_id":"sytrz98z"}
+{"time":"2025-02-18T09:27:41.896213006+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"sytrz98z"}}
+{"time":"2025-02-18T09:27:42.239401052+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T09:27:42.239420458+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T09:27:42.239455584+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}

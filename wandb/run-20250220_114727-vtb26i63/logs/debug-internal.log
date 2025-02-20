@@ -1,0 +1,11 @@
+{"time":"2025-02-20T11:47:27.31422917+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:47:27.314244288+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_114727-vtb26i63/logs/debug-core.log"}
+{"time":"2025-02-20T11:47:27.426901715+01:00","level":"INFO","msg":"created new stream","id":"vtb26i63"}
+{"time":"2025-02-20T11:47:27.426936391+01:00","level":"INFO","msg":"stream: started","id":"vtb26i63"}
+{"time":"2025-02-20T11:47:27.426962109+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"vtb26i63"}}
+{"time":"2025-02-20T11:47:27.426960877+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"vtb26i63"}}
+{"time":"2025-02-20T11:47:27.427035757+01:00","level":"INFO","msg":"sender: started","stream_id":"vtb26i63"}
+{"time":"2025-02-20T11:47:27.883837499+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:47:27.883863208+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:47:27.883900828+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:47:34.338321954+01:00","level":"INFO","msg":"Pausing system monitor"}

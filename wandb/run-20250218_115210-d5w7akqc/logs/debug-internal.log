@@ -1,0 +1,21 @@
+{"time":"2025-02-18T11:52:10.244233439+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T11:52:10.244250311+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_115210-d5w7akqc/logs/debug-core.log"}
+{"time":"2025-02-18T11:52:10.35769067+01:00","level":"INFO","msg":"created new stream","id":"d5w7akqc"}
+{"time":"2025-02-18T11:52:10.357733321+01:00","level":"INFO","msg":"stream: started","id":"d5w7akqc"}
+{"time":"2025-02-18T11:52:10.357766844+01:00","level":"INFO","msg":"sender: started","stream_id":"d5w7akqc"}
+{"time":"2025-02-18T11:52:10.357760131+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"d5w7akqc"}}
+{"time":"2025-02-18T11:52:10.357756965+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"d5w7akqc"}}
+{"time":"2025-02-18T11:52:10.658381112+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T11:52:10.658421698+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T11:52:10.658466973+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T11:52:18.011954816+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-18T11:53:08.109425999+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-18T11:53:08.688130693+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-18T11:53:08.688685928+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-18T11:53:09.688367453+01:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact source-simple_mml_baseline-_sc-projects_sc-proj-ukb-cvd_projects_simple_mml_baseline_tr_main.ipynb","runtime_seconds":1.008107141,"subtasks":[{"desc":"main.ipynb","runtime_seconds":0.324482124,"progress":"45.6KB/45.6KB"},{"desc":"_session_history.ipynb","runtime_seconds":0.324466815,"progress":"4.9KB/4.9KB"}]},{"desc":"uploading output.log","runtime_seconds":0.6339686,"progress":"15.0KB/15.0KB"}],"total_operations":2}}
+{"time":"2025-02-18T11:53:12.889934643+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-18T11:53:14.07421426+01:00","level":"INFO","msg":"stream: closing","id":"d5w7akqc"}
+{"time":"2025-02-18T11:53:14.074238826+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"d5w7akqc"}}
+{"time":"2025-02-18T11:53:14.074258614+01:00","level":"INFO","msg":"sender: closed","stream_id":"d5w7akqc"}
+{"time":"2025-02-18T11:53:14.074256129+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"d5w7akqc"}}
+{"time":"2025-02-18T11:53:14.076204839+01:00","level":"INFO","msg":"stream: closed","id":"d5w7akqc"}

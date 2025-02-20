@@ -1,0 +1,21 @@
+{"time":"2025-02-20T11:42:15.49172288+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:42:15.491739542+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_114215-drf92v35/logs/debug-core.log"}
+{"time":"2025-02-20T11:42:15.604547337+01:00","level":"INFO","msg":"created new stream","id":"drf92v35"}
+{"time":"2025-02-20T11:42:15.604577063+01:00","level":"INFO","msg":"stream: started","id":"drf92v35"}
+{"time":"2025-02-20T11:42:15.60460738+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"drf92v35"}}
+{"time":"2025-02-20T11:42:15.604669627+01:00","level":"INFO","msg":"sender: started","stream_id":"drf92v35"}
+{"time":"2025-02-20T11:42:15.604592121+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"drf92v35"}}
+{"time":"2025-02-20T11:42:15.917839241+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:42:15.917869658+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:42:15.917917879+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:42:23.856752255+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T11:43:16.318541845+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T11:43:16.968846763+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-20T11:43:16.969311405+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-20T11:43:17.969098293+01:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact source-simple_mml_baseline-_sc-projects_sc-proj-ukb-cvd_projects_simple_mml_baseline_tr_main.ipynb","runtime_seconds":1.008004993,"subtasks":[{"desc":"_session_history.ipynb","runtime_seconds":0.316463865,"progress":"4.9KB/4.9KB"},{"desc":"main.ipynb","runtime_seconds":0.31645595,"progress":"51.5KB/51.5KB"}]},{"desc":"uploading config.yaml","runtime_seconds":0.637500048,"progress":"1.6KB/1.6KB"},{"desc":"uploading output.log","runtime_seconds":0.637486672,"progress":"3.9KB/3.9KB"}],"total_operations":3}}
+{"time":"2025-02-20T11:43:21.215936757+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-20T11:43:22.404203308+01:00","level":"INFO","msg":"stream: closing","id":"drf92v35"}
+{"time":"2025-02-20T11:43:22.404216452+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"drf92v35"}}
+{"time":"2025-02-20T11:43:22.404227363+01:00","level":"INFO","msg":"sender: closed","stream_id":"drf92v35"}
+{"time":"2025-02-20T11:43:22.40422597+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"drf92v35"}}
+{"time":"2025-02-20T11:43:22.406065686+01:00","level":"INFO","msg":"stream: closed","id":"drf92v35"}

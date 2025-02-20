@@ -1,0 +1,11 @@
+{"time":"2025-02-20T11:09:46.685484851+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:09:46.685501162+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_110946-k4bgvhs4/logs/debug-core.log"}
+{"time":"2025-02-20T11:09:46.802106905+01:00","level":"INFO","msg":"created new stream","id":"k4bgvhs4"}
+{"time":"2025-02-20T11:09:46.80213601+01:00","level":"INFO","msg":"stream: started","id":"k4bgvhs4"}
+{"time":"2025-02-20T11:09:46.802217974+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"k4bgvhs4"}}
+{"time":"2025-02-20T11:09:46.803633102+01:00","level":"INFO","msg":"sender: started","stream_id":"k4bgvhs4"}
+{"time":"2025-02-20T11:09:46.803633943+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"k4bgvhs4"}}
+{"time":"2025-02-20T11:09:47.20389367+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:09:47.204756401+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:09:47.205405751+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:09:50.019507852+01:00","level":"INFO","msg":"Pausing system monitor"}

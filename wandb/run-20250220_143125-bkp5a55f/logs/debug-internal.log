@@ -1,0 +1,19 @@
+{"time":"2025-02-20T14:31:25.443928161+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T14:31:25.443942388+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_143125-bkp5a55f/logs/debug-core.log"}
+{"time":"2025-02-20T14:31:25.555197172+01:00","level":"INFO","msg":"created new stream","id":"bkp5a55f"}
+{"time":"2025-02-20T14:31:25.55521706+01:00","level":"INFO","msg":"stream: started","id":"bkp5a55f"}
+{"time":"2025-02-20T14:31:25.555248248+01:00","level":"INFO","msg":"sender: started","stream_id":"bkp5a55f"}
+{"time":"2025-02-20T14:31:25.555239081+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"bkp5a55f"}}
+{"time":"2025-02-20T14:31:25.555375297+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"bkp5a55f"}}
+{"time":"2025-02-20T14:31:25.920842179+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T14:31:25.920872306+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T14:31:25.920911429+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T14:31:30.268417285+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T14:31:30.358555826+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T14:31:30.634661938+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T14:31:30.707989843+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T14:31:30.983972122+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T14:31:31.088201911+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T14:31:31.372625215+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-20T14:31:31.440559569+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-20T14:31:31.715210037+01:00","level":"INFO","msg":"Pausing system monitor"}

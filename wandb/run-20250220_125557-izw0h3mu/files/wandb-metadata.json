@@ -1,0 +1,41 @@
+{
+  "os": "Linux-4.18.0-553.16.1.el8_10.x86_64-x86_64-with-glibc2.28",
+  "python": "3.9.16",
+  "startedAt": "2025-02-20T11:55:57.409276Z",
+  "program": "/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main.ipynb",
+  "email": "tillmann.rheude@bih-charite.de",
+  "root": "/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr",
+  "host": "s-sc-gpu007",
+  "username": "rhti10",
+  "executable": "/sc-projects/sc-proj-ukb-cvd/environments/mml/bin/python",
+  "codePathLocal": "main.ipynb",
+  "cpu_count": 64,
+  "cpu_count_logical": 64,
+  "gpu": "NVIDIA A100-PCIE-40GB",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "370658316288",
+      "used": "57069854720"
+    }
+  },
+  "memory": {
+    "total": "540070932480"
+  },
+  "cpu": {
+    "count": 64,
+    "countLogical": 64
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA A100-PCIE-40GB",
+      "memoryTotal": "42949672960",
+      "cudaCores": 6912,
+      "architecture": "Ampere"
+    }
+  ],
+  "slurm": {
+    "job_id": "4476652"
+  },
+  "cudaVersion": "12.2"
+}

@@ -1,0 +1,11 @@
+{"time":"2025-02-20T11:48:32.751237425+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T11:48:32.751251611+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_114832-rv5sh1d7/logs/debug-core.log"}
+{"time":"2025-02-20T11:48:32.863858975+01:00","level":"INFO","msg":"created new stream","id":"rv5sh1d7"}
+{"time":"2025-02-20T11:48:32.863892819+01:00","level":"INFO","msg":"stream: started","id":"rv5sh1d7"}
+{"time":"2025-02-20T11:48:32.863929017+01:00","level":"INFO","msg":"sender: started","stream_id":"rv5sh1d7"}
+{"time":"2025-02-20T11:48:32.86390925+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"rv5sh1d7"}}
+{"time":"2025-02-20T11:48:32.86392024+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"rv5sh1d7"}}
+{"time":"2025-02-20T11:48:33.245903146+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T11:48:33.24592654+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T11:48:33.245966876+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-20T11:48:40.411314927+01:00","level":"INFO","msg":"Pausing system monitor"}

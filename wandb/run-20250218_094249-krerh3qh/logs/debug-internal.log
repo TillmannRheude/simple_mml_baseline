@@ -1,0 +1,21 @@
+{"time":"2025-02-18T09:42:49.668945629+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T09:42:49.668960317+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_094249-krerh3qh/logs/debug-core.log"}
+{"time":"2025-02-18T09:42:49.782503753+01:00","level":"INFO","msg":"created new stream","id":"krerh3qh"}
+{"time":"2025-02-18T09:42:49.782537837+01:00","level":"INFO","msg":"stream: started","id":"krerh3qh"}
+{"time":"2025-02-18T09:42:49.782555771+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"krerh3qh"}}
+{"time":"2025-02-18T09:42:49.782675236+01:00","level":"INFO","msg":"sender: started","stream_id":"krerh3qh"}
+{"time":"2025-02-18T09:42:49.782566641+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"krerh3qh"}}
+{"time":"2025-02-18T09:42:50.211127965+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T09:42:50.211154806+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T09:42:50.211195322+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T09:42:57.861030438+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-18T09:44:25.178110354+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-18T09:44:25.726085746+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-18T09:44:25.726588533+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-18T09:44:26.726468017+01:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact source-simple_mml_baseline-_sc-projects_sc-proj-ukb-cvd_projects_simple_mml_baseline_tr_main.ipynb","runtime_seconds":1.008026748,"subtasks":[{"desc":"_session_history.ipynb","runtime_seconds":0.328171319,"progress":"4.9KB/4.9KB"},{"desc":"main.ipynb","runtime_seconds":0.328163224,"progress":"48.7KB/48.7KB"}]}],"total_operations":1}}
+{"time":"2025-02-18T09:44:29.728475085+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-18T09:44:30.903626366+01:00","level":"INFO","msg":"stream: closing","id":"krerh3qh"}
+{"time":"2025-02-18T09:44:30.90364411+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"krerh3qh"}}
+{"time":"2025-02-18T09:44:30.903663376+01:00","level":"INFO","msg":"sender: closed","stream_id":"krerh3qh"}
+{"time":"2025-02-18T09:44:30.903658036+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"krerh3qh"}}
+{"time":"2025-02-18T09:44:30.905561491+01:00","level":"INFO","msg":"stream: closed","id":"krerh3qh"}

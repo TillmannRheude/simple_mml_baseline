@@ -1,0 +1,10 @@
+{"time":"2025-02-20T15:27:37.566835056+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-20T15:27:37.566849553+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250220_152737-ufm8ambh/logs/debug-core.log"}
+{"time":"2025-02-20T15:27:37.679977439+01:00","level":"INFO","msg":"created new stream","id":"ufm8ambh"}
+{"time":"2025-02-20T15:27:37.680014338+01:00","level":"INFO","msg":"stream: started","id":"ufm8ambh"}
+{"time":"2025-02-20T15:27:37.680043383+01:00","level":"INFO","msg":"sender: started","stream_id":"ufm8ambh"}
+{"time":"2025-02-20T15:27:37.680036851+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"ufm8ambh"}}
+{"time":"2025-02-20T15:27:37.680049414+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"ufm8ambh"}}
+{"time":"2025-02-20T15:27:38.01424043+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-20T15:27:38.014264204+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-20T15:27:38.014306674+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}

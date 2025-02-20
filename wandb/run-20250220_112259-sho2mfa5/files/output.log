@@ -1,0 +1,1 @@
+/sc-projects/sc-proj-ukb-cvd/environments/mml/lib/python3.9/site-packages/pytorch_lightning/utilities/parsing.py:208: Attribute 'model' is an instance of `nn.Module` and is already saved during checkpointing. It is recommended to ignore them using `self.save_hyperparameters(ignore=['model'])`.

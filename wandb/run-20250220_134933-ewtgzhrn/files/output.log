@@ -1,0 +1,46 @@
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+total_samples: 1284 / 1284
+no_missing: 1284 / 1284
+1_missing: 0 / 1284
+modality_0_missing: 0 / 1284
+modality_1_missing: 0 / 1284
+modality_2_missing: 0 / 1284
+total_samples: 229 / 229
+no_missing: 229 / 229
+1_missing: 0 / 229
+modality_0_missing: 0 / 229
+modality_1_missing: 0 / 229
+modality_2_missing: 0 / 229
+total_samples: 686 / 686
+no_missing: 686 / 686
+1_missing: 0 / 686
+modality_0_missing: 0 / 686
+modality_1_missing: 0 / 686
+modality_2_missing: 0 / 686
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
+
+   | Name        | Type                       | Params | Mode
+--------------------------------------------------------------------
+0  | model       | Multimodal_Architecture    | 122 M  | train
+1  | loss        | L1Loss                     | 0      | train
+2  | acc_2_train | BinaryAccuracy             | 0      | train
+3  | acc_2_val   | BinaryAccuracy             | 0      | train
+4  | acc_2_test  | BinaryAccuracy             | 0      | train
+5  | acc_7_train | MulticlassAccuracy         | 0      | train
+6  | acc_7_val   | MulticlassAccuracy         | 0      | train
+7  | acc_7_test  | MulticlassAccuracy         | 0      | train
+8  | f1_train    | BinaryF1Score              | 0      | train
+9  | f1_val      | BinaryF1Score              | 0      | train
+10 | f1_test     | BinaryF1Score              | 0      | train
+11 | ece         | MulticlassCalibrationError | 0      | train
+12 | mce         | MulticlassCalibrationError | 0      | train
+13 | rmsce       | MulticlassCalibrationError | 0      | train
+--------------------------------------------------------------------
+122 M     Trainable params
+0         Non-trainable params
+122 M     Total params
+489.342   Total estimated model params size (MB)
+264       Modules in train mode
+216       Modules in eval mode

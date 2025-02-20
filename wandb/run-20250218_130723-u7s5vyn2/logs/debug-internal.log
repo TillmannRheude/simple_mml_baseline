@@ -1,0 +1,21 @@
+{"time":"2025-02-18T13:07:23.582175977+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T13:07:23.582191486+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_130723-u7s5vyn2/logs/debug-core.log"}
+{"time":"2025-02-18T13:07:23.694224096+01:00","level":"INFO","msg":"created new stream","id":"u7s5vyn2"}
+{"time":"2025-02-18T13:07:23.694243954+01:00","level":"INFO","msg":"stream: started","id":"u7s5vyn2"}
+{"time":"2025-02-18T13:07:23.694294899+01:00","level":"INFO","msg":"sender: started","stream_id":"u7s5vyn2"}
+{"time":"2025-02-18T13:07:23.694277777+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"u7s5vyn2"}}
+{"time":"2025-02-18T13:07:23.694270243+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"u7s5vyn2"}}
+{"time":"2025-02-18T13:07:24.09488894+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T13:07:24.094914899+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T13:07:24.094955105+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T13:07:28.630631839+01:00","level":"INFO","msg":"Pausing system monitor"}
+{"time":"2025-02-18T13:08:01.041512901+01:00","level":"INFO","msg":"Resuming system monitor"}
+{"time":"2025-02-18T13:08:01.52343302+01:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2025-02-18T13:08:01.523946357+01:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2025-02-18T13:08:02.52374651+01:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading artifact source-simple_mml_baseline-_sc-projects_sc-proj-ukb-cvd_projects_simple_mml_baseline_tr_main.ipynb","runtime_seconds":1.007977425,"subtasks":[{"desc":"main.ipynb","runtime_seconds":0.25765359,"progress":"21.3KB/21.3KB"}]}],"total_operations":1}}
+{"time":"2025-02-18T13:08:06.733624015+01:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2025-02-18T13:08:07.908833407+01:00","level":"INFO","msg":"stream: closing","id":"u7s5vyn2"}
+{"time":"2025-02-18T13:08:07.908868813+01:00","level":"INFO","msg":"handler: closed","stream_id":{"value":"u7s5vyn2"}}
+{"time":"2025-02-18T13:08:07.908880766+01:00","level":"INFO","msg":"writer: Close: closed","stream_id":{"value":"u7s5vyn2"}}
+{"time":"2025-02-18T13:08:07.908925129+01:00","level":"INFO","msg":"sender: closed","stream_id":"u7s5vyn2"}
+{"time":"2025-02-18T13:08:07.910924345+01:00","level":"INFO","msg":"stream: closed","id":"u7s5vyn2"}

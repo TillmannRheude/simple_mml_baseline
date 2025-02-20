@@ -1,0 +1,11 @@
+{"time":"2025-02-18T11:56:35.499366467+01:00","level":"INFO","msg":"using version","core version":"0.18.6"}
+{"time":"2025-02-18T11:56:35.499382808+01:00","level":"INFO","msg":"created symlink","path":"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/wandb/run-20250218_115635-mytx5eqo/logs/debug-core.log"}
+{"time":"2025-02-18T11:56:35.611395612+01:00","level":"INFO","msg":"created new stream","id":"mytx5eqo"}
+{"time":"2025-02-18T11:56:35.611420869+01:00","level":"INFO","msg":"stream: started","id":"mytx5eqo"}
+{"time":"2025-02-18T11:56:35.611494939+01:00","level":"INFO","msg":"sender: started","stream_id":"mytx5eqo"}
+{"time":"2025-02-18T11:56:35.611448341+01:00","level":"INFO","msg":"handler: started","stream_id":{"value":"mytx5eqo"}}
+{"time":"2025-02-18T11:56:35.611442851+01:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"mytx5eqo"}}
+{"time":"2025-02-18T11:56:35.982491641+01:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2025-02-18T11:56:35.982516678+01:00","level":"WARN","msg":"handleCodeSave: program relative path is empty"}
+{"time":"2025-02-18T11:56:35.982554138+01:00","level":"ERROR","msg":"git repo not found","error":"repository does not exist"}
+{"time":"2025-02-18T11:56:42.641023679+01:00","level":"INFO","msg":"Pausing system monitor"}
