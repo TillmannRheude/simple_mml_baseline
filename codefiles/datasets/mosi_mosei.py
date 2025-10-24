@@ -1,6 +1,6 @@
 import torch
 import pickle 
-
+import pandas as pd
 from torchvision import transforms
 from torch.utils.data import Dataset
 
@@ -13,23 +13,26 @@ class MOSI_MOSEI(Dataset):
             split: str = "train",
             split_nr: int = 1, 
             variant: str = "unimodal_1",
-            zero_fill_rates: list = [0.3, 0.3, 0.0],
+            zero_fill_rates: list = [0.0, 0.0],
             seed: int = 42
     ) -> None: 
         super().__init__()
 
-        if dataset == "mosi":
-            self.datadir = "/sc-projects/sc-proj-ukb-cvd/projects/mml_tr/IMDer/dataset/MOSI/aligned_50.pkl"
-        elif dataset == "mosei":
-            self.datadir = "/sc-projects/sc-proj-ukb-cvd/projects/mml_tr/IMDer/dataset/MOSEI/aligned_50.pkl"
-
-        self.split = split
-        self.variant = variant
         self.num_modalities = 3
+        self.variant = variant
+
+        if dataset == "mosi":
+            self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/data/MOSI/aligned_50_testsplits_split_{split_nr}.pkl"
+        elif dataset == "mosei":
+            self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/data/MOSEI/aligned_50_testsplits_split_{split_nr}.pkl"
 
         with open(self.datadir, 'rb') as f:
             self.dataset = pickle.load(f)
-        self.dataset = self.dataset[self.split]
+        #self.dataset = pd.read_pickle(self.datadir)
+        if dataset == "mosi":
+            self.dataset = self.dataset[split]
+        elif dataset == "mosei":
+            self.dataset = self.dataset[split]
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
@@ -46,10 +49,11 @@ class MOSI_MOSEI(Dataset):
     def __len__(self):
         return len(self.dataset["id"])
 
-    def __getitem__(self, idx) -> list: 
+    def __getitem__(self, idx) -> list:
         # label
         label = self.dataset["regression_labels"][idx]  # classification_labels, annotations
-        label = torch.tensor(label) 
+        label = torch.tensor(label).unsqueeze(0)
+        label = (torch.round(label) + 3)
 
         # full multimodal datareturn
         datareturn = [
@@ -64,9 +68,10 @@ class MOSI_MOSEI(Dataset):
             datareturn[1] = apply_missing_mask(datareturn[1], self.zero_fill_masks[idx, 1])
             datareturn[2] = apply_missing_mask(datareturn[2], self.zero_fill_masks[idx, 2])
 
-        return [
-            datareturn, 
-            label, 
-            datareturn
-        ]
+        return {
+            "language": datareturn[0],
+            "vision": datareturn[1],
+            "audio": datareturn[2],
+            "label": label.long()
+        }
 

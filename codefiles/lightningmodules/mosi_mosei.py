@@ -22,12 +22,46 @@ class MOSI_Lightning_Module(LightningModuleParent):
             "betas": (0.95, 0.99),
             "warmup_steps": 1
         },
-        dataset: str = "mosi"
-    ):
-        super().__init__()
+        dataset: str = "mimic_symile",
+        manual_opt: bool = True,
+        params_ogm: dict = {
+                "use_ge": True,
+                "ge_noise_level": 0.1,
+        },
+        params_arl: dict = {},
+        params_dgl: dict = {},
+        params_mcr: dict = {},
+        params_mmpareto: dict = {},
+        params_bmml: dict = {},
+        params_gblend: dict = {},
+        params_pdf: dict = {},
+        params_pmr: dict = {},
+        params_omib: dict = {},
+        params_smil: dict = {},
+        params_avmc: dict = {},
+        params_ebr: dict = {},
+        params_simmlm: dict = {},
+    ) -> None: 
+        super().__init__(
+            manual_opt=manual_opt, 
+            params_ogm=params_ogm, 
+            params_arl=params_arl, 
+            params_dgl=params_dgl, 
+            params_mcr=params_mcr, 
+            params_mmpareto=params_mmpareto, 
+            params_bmml=params_bmml, 
+            params_gblend=params_gblend, 
+            params_pdf=params_pdf,
+            params_pmr=params_pmr,
+            params_omib=params_omib,
+            params_smil=params_smil,
+            params_avmc=params_avmc,
+            params_ebr=params_ebr,
+            params_simmlm=params_simmlm,
+        )
         self.model = model
         self.params_optimizer = params_optimizer
-        self.loss = nn.L1Loss()
+        self.loss = nn.CrossEntropyLoss()  #nn.L1Loss()
         self.dataset = dataset
 
         self.acc_2_train = BinaryAccuracy()
@@ -53,75 +87,93 @@ class MOSI_Lightning_Module(LightningModuleParent):
         self.save_hyperparameters()
 
     def training_step(self, batch, batch_idx):
-        x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
-        logits = self.forward(x).to(y.dtype)
-        
-        # Convert logits to predicted values (-3 to 3 range)
-        values = torch.tensor([-3, -2, -1, 0, 1, 2, 3], device=logits.device)
-        predictions = (F.softmax(logits, dim=1) * values.view(1, -1)).sum(dim=1)
-        
-        # Calculate loss
-        loss = self.loss(predictions, y)
-        self.log("train/loss", loss, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        shared_dict = self.shared_step(batch, set="train", convert_logits="mosi")
+
+        logits = shared_dict["logits"]
+        y = shared_dict["y"]
 
         # Filter non-zero entries
-        non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        binary_targets = (y[non_zeros] > 0)
-        binary_predictions = (predictions[non_zeros] > 0)
+        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
+        #binary_targets = (y[non_zeros] > 0).squeeze()
+        #binary_predictions = (logits[non_zeros] > 0)
+
+        predicted_classes = torch.argmax(logits, dim=1)
+        non_neutral_mask = (y != 3)
+
+        # Binary classification transformations
+        binary_targets = (y[non_neutral_mask] > 3).long()
+        binary_predictions = (predicted_classes[non_neutral_mask.squeeze()] > 3).long()
         
         # Update metrics
-        self.acc_2_train.update(binary_predictions, binary_targets)
-        self.acc_7_train.update(
-            torch.round(torch.clamp(predictions, -3, 3)),
-            torch.round(torch.clamp(y, -3, 3))
-        )
-        self.f1_train.update(binary_predictions, binary_targets)
+        if binary_predictions.numel() > 0:
+            self.acc_2_train.update(binary_predictions.view(-1), binary_targets.view(-1))
+            self.f1_train.update(binary_predictions.view(-1), binary_targets.view(-1))
+        #self.acc_7_train.update(
+        #    torch.round(torch.clamp(logits, -3, 3)),
+        #    torch.round(torch.clamp(y.squeeze(), -3, 3))
+        #)
+        self.acc_7_train.update(predicted_classes.view(-1), y.view(-1))
 
-        return loss
+        return shared_dict["loss"]
 
     def validation_step(self, batch, batch_idx):
-        x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
-        logits = self.forward(x).to(y.dtype)
-        
-        # Convert logits to predicted values (-3 to 3 range)
-        values = torch.tensor([-3, -2, -1, 0, 1, 2, 3], device=logits.device)
-        predictions = (F.softmax(logits, dim=1) * values.view(1, -1)).sum(dim=1)
-        
-        # Calculate loss
-        loss = self.loss(predictions, y)
-        self.log("val/loss", loss, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        shared_dict = self.shared_step(batch, set="val", convert_logits="mosi")
+
+        logits = shared_dict["logits"]
+        y = shared_dict["y"]
 
         # Filter non-zero entries
-        non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        binary_targets = (y[non_zeros] > 0)
-        binary_predictions = (predictions[non_zeros] > 0)
+        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
+        #binary_targets = (y[non_zeros] > 0).squeeze()
+        #binary_predictions = (logits[non_zeros] > 0)
+
+        predicted_classes = torch.argmax(logits, dim=1)
+        non_neutral_mask = (y != 3)
+
+        # Binary classification transformations
+        binary_targets = (y[non_neutral_mask] > 3).long()
+        binary_predictions = (predicted_classes[non_neutral_mask.squeeze()] > 3).long()
         
         # Update metrics
-        self.acc_2_val.update(binary_predictions, binary_targets)
-        self.acc_7_val.update(
-            torch.round(torch.clamp(predictions, -3, 3)),
-            torch.round(torch.clamp(y, -3, 3))
-        )
-        self.f1_val.update(binary_predictions, binary_targets)
+        if binary_predictions.numel() > 0:
+            self.acc_2_val.update(binary_predictions.view(-1), binary_targets.view(-1))
+            self.f1_val.update(binary_predictions.view(-1), binary_targets.view(-1))
+        #self.acc_7_val.update(
+        #    torch.round(torch.clamp(logits, -3, 3)),
+        #    torch.round(torch.clamp(y.squeeze(), -3, 3))
+        #)
+        self.acc_7_val.update(predicted_classes.view(-1), y.view(-1))
 
-        return loss
+        return shared_dict["loss"]
 
     def test_step(self, batch, batch_idx):
-        x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
+        shared_dict = self.shared_step(batch, set="test", convert_logits="mosi")
 
-        logits = self.forward(x)
-        loss = self.loss(logits.squeeze(), y.squeeze())
-        self.log("test/loss", loss, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        logits = shared_dict["logits"]
+        y = shared_dict["y"]
 
-        non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        binary_targets = (y[non_zeros] > 0)
-        binary_logits = (logits.squeeze()[non_zeros] > 0)
+        # Filter non-zero entries
+        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
+        #binary_targets = (y[non_zeros] > 0).squeeze()
+        #binary_logits = (logits.squeeze()[non_zeros] > 0)
+
+        predicted_classes = torch.argmax(logits, dim=1)
+        non_neutral_mask = (y != 3)
+
+        # Binary classification transformations
+        binary_targets = (y[non_neutral_mask] > 3).long()
+        binary_predictions = (predicted_classes[non_neutral_mask.squeeze()] > 3).long()
         
-        self.acc_2_test.update(binary_logits, binary_targets)
-        self.acc_7_test.update(torch.round(torch.clamp(logits, -3, 3)).squeeze(), torch.round(torch.clamp(y, -3, 3)))
-        self.f1_test.update(binary_logits, binary_targets)  
+        # Update metrics 
+        self.acc_2_test.update(binary_predictions.view(-1), binary_targets.view(-1))
+        self.f1_test.update(binary_predictions.view(-1), binary_targets.view(-1))  
+        #self.acc_7_test.update(
+        #    torch.round(torch.clamp(logits, -3, 3)),
+        #    torch.round(torch.clamp(y.squeeze(), -3, 3))
+        #)
+        self.acc_7_test.update(predicted_classes.view(-1), y.view(-1))
 
-        return logits
+        return shared_dict["loss"]
 
     def on_train_epoch_end(self):
         self.log("train/acc_2_epoch", self.acc_2_train.compute())

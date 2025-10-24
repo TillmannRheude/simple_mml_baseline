@@ -1,0 +1,31 @@
+modelname: regbn
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 3e-4
+  warmup_steps: 100
+  weight_decay: 0.001
+  eps: 1e-7
+  betas: [0.95, 0.99]
+
+pipeline:
+  full_seq: False
+
+head_transformer:
+  d_model: 128
+  num_layers: 8
+  dim_feedforward: 512
+  nhead: 4
+  dropout: 0.2
+
+rbn:
+  reference_modality_idx: 0  # modality which is the primary source of confounding information that you want to remove from the other modalities (f)
+  momentum: 0.01
+  sigma_THR: 0.3
+  sigma_MIN: 0.1
+  normalize_input: True
+  normalize_output: True
+  affine: True
+  beta: [0.95, 0.98]
+
+

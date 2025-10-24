@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+
+monitor:
+  metric: "val/auroc_macro_epoch"
+  mode: "max"
+
+vision:
+  vit: 
+    vit: "vit_b_32"
+    dropout: 0.2
+
+sequential1:  # laboratory data
+  transformer:
+    num_hidden_layers: 6
+    num_attention_heads: 16
+    intermediate_size: 2048
+    dropout: 0.2
+
+sequential2:  # ecg data
+  mlp:
+    hidden_dims: [1024, 2048, 1024]
+    hidden_dropouts: [0.2, 0.2, 0.2]

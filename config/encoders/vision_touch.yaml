@@ -1,0 +1,16 @@
+defaults:
+  - _self_
+
+vision:
+  vit: 
+    dropout: 0.0
+
+proprio:
+  # just an MLP 
+
+force:
+  transformer:
+    num_hidden_layers: 6
+    num_attention_heads: 1
+    intermediate_size: 1024
+    dropout: 0.0

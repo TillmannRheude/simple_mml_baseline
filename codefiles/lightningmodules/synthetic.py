@@ -23,9 +23,18 @@ class Synthetic_Lightning_Module(LightningModuleParent):
             "betas": (0.95, 0.99),
             "warmup_steps": 1
         },
-        dataset: str = "fmnist"
+        dataset: str = "fmnist",
+        manual_opt: bool = True,
+        params_ogm: dict = {
+                "use_ge": True,
+                "ge_noise_level": 0.1,
+        },
+        params_arl: dict = {},
+        params_dgl: dict = {},
+        params_mcr: dict = {},
+        params_mmpareto: dict = {},
     ) -> None: 
-        super().__init__()
+        super().__init__(manual_opt=manual_opt, params_ogm=params_ogm, params_arl=params_arl, params_dgl=params_dgl, params_mcr=params_mcr, params_mmpareto=params_mmpareto)
         self.model = model
         self.params_optimizer = params_optimizer
         self.loss = nn.CrossEntropyLoss()
@@ -42,29 +51,21 @@ class Synthetic_Lightning_Module(LightningModuleParent):
         self.save_hyperparameters()
     
     def training_step(self, batch, batch_idx):
-        x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
+        shared_dict = self.shared_step(batch)
 
-        logits = self.forward(x)
-        loss = self.loss(logits, y)
-        self.log("train/loss", loss, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
-
-        self.acc_train.update(torch.argmax(logits, dim=1).view(*y.shape), y)
+        self.acc_train.update(torch.argmax(shared_dict["logits"], dim=1).view(*shared_dict["y"].shape), shared_dict["y"])
     
-        return loss
-
+        return shared_dict["loss"]
+    
     def validation_step(self, batch, batch_idx):
-        x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
+        shared_dict = self.shared_step(batch)
 
-        logits = self.forward(x)
-        loss = self.loss(logits, y)
-        self.log("val/loss", loss, on_epoch=True, prog_bar=True, logger=True, sync_dist=True)
+        self.acc_val.update(torch.argmax(shared_dict["logits"], dim=1).view(*shared_dict["y"].shape), shared_dict["y"])
+        self.ece.update(shared_dict["logits"], shared_dict["y"])
+        self.mce.update(shared_dict["logits"], shared_dict["y"])
+        self.rmsce.update(shared_dict["logits"], shared_dict["y"])
 
-        self.acc_val.update(torch.argmax(logits, dim=1).view(*y.shape), y)
-        self.ece.update(logits, y)
-        self.mce.update(logits, y)
-        self.rmsce.update(logits, y)
-
-        return loss
+        return shared_dict["loss"]
     
     def test_step(self, batch, batch_idx):
         x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)

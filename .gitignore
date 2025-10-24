@@ -1,3 +1,16 @@
+archiv
+.vscode
+__MACOSX
+checkpoints
+local_codebases
 data
 simple_mml_baseline
 wandb
+sweep_yamls/outputs
+sweep_yamls/wandb
+outputs
+test_runs/*.out
+test_runs/outputs
+test_runs_missingness/*out
+test_runs_missingness/outputs
+visualization_scripts

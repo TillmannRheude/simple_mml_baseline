@@ -1,0 +1,27 @@
+modelname: pdf
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 1e-3
+  warmup_steps: 1000
+  weight_decay: 0.0
+  eps: 1e-7
+  betas: [0.95, 0.99]
+
+pipeline:
+  full_seq: False
+  
+head_transformer:
+  d_model: 128
+  num_layers: 8
+  dim_feedforward: 512
+  nhead: 4
+  dropout: 0.2
+
+pdf:
+  loss_weight: 1.0  # L_ptrue
+  unimodal_loss_weight: 1.0
+  p_true_loss_fn: 'l1'
+  p_head:
+    hidden_dims: [128]
+    dropout: 0.1

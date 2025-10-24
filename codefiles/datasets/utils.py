@@ -40,6 +40,8 @@ def create_missing_data_masks(
     >>> # 20% of samples have one missing modality
     >>> # 10% of samples have two missing modalities
     """
+    assert len(missing_rates) == (num_modalities-1), "Number of missing rates must match (number of modalities - 1)"
+    
     if random_seed is not None:
         np.random.seed(random_seed)
         

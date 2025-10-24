@@ -1,0 +1,32 @@
+modelname: imder
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 0.00017010236178206022
+  warmup_steps: 1000
+  weight_decay: 0.001
+  eps: 1e-7
+  betas: [0.95, 0.99]
+
+pipeline:
+  full_seq: True
+  
+head_transformer:
+  d_model: 128
+  num_layers: 8
+  dim_feedforward: 512
+  nhead: 4
+  dropout: 0.2
+  
+ddpms:
+  sampling_iter: 1
+  n_steps: 100
+  d_model: 128  # = d_model head_transformer
+  hidden_dim: 256  # if != d_model: hockey-stick loss
+  num_layers: 3
+  dropout: 0.0
+  nhead: 8
+  seq_lens: [1,1,1]
+
+imder: 
+  beta: 0.1  # imputation loss weight

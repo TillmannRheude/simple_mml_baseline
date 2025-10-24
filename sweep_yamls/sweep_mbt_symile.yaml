@@ -1,0 +1,57 @@
+# sweep.yaml
+program: /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main.py
+project: simple_mml_baseline
+name: MBT - Symile
+method: bayes
+metric:
+  name: val/loss
+  goal: minimize
+
+parameters:
+  # Optimizer
+  modelname.optimizer.lr:
+    min: 0.000001
+    max: 0.1
+    distribution: "log_uniform_values"
+  modelname.optimizer.warmup_steps:
+    values: [0, 100, 200, 500, 1000]
+  modelname.optimizer.weight_decay:
+    values: [0, 0.1, 0.01, 0.001]
+  # MBT
+  modelname.bottleneck.num_bottlenecks:
+    values: [1, 2, 4, 8, 16, 32]
+  modelname.bottleneck.layers:
+    values: [1, 2, 4, 8, 16, 32]
+  modelname.bottleneck.dim_feedforward:
+    values: [128, 256, 512, 1024, 2048]
+  modelname.bottleneck.nhead:
+    values: [1, 2, 4, 8, 16, 32]
+  modelname.bottleneck.dropout:
+    values: [0.0, 0.1, 0.2, 0.3, 0.4]
+
+command:
+  - ${env}
+  - srun
+  - "-N"
+  - "1-1"
+  - "-T"
+  - "32"
+  - "-p"
+  - "gpu"
+  - "--gres=shard:2"
+  - "--job-name=SimBas-MBT"
+  - "--mem=200G"
+  - "--time"
+  - "48:00:00"
+  - "python3"
+  - ${program}
+  - --config-name=config
+  - modelname="mbt"
+  - dataset="mimic_symile"
+  - encoders="mimic_symile"
+  - wandb.group="None"
+  - batch_size=16
+  - missing.missing_train=[0.0,0.0]
+  - missing.missing_valid=[0.0,0.0]
+  - missing.missing_test=[0.0,0.0]
+  - ${args_no_hyphens}

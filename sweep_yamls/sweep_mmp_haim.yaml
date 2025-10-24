@@ -1,0 +1,84 @@
+# sweep.yaml
+program: /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main.py
+project: simple_mml_baseline
+name: MMP - HAIM
+method: bayes
+metric:
+  name: val/loss
+  goal: minimize
+
+parameters:
+  # Fixed parameters 
+  encoders.sequential.transformer.dropout:
+    value: 0.2
+  encoders.sequential.transformer.intermediate_size:
+    value: 1024
+  encoders.sequential.transformer.num_attention_heads:
+    value: 8
+  encoders.sequential.transformer.num_hidden_layers:
+    value: 2
+  encoders.vision.vit.dropout:
+    value: 0.0
+  encoders.vision.vit.vit:
+    value: "vit_b_32"
+  modelname.head_transformer.d_model:
+    value: 256
+  modelname.head_transformer.dim_feedforward:
+    value: 256
+  modelname.head_transformer.dropout:
+    value: 0.1
+  modelname.head_transformer.nhead:
+    value: 4
+  modelname.head_transformer.num_layers:
+    value: 4
+  # Optimizer
+  modelname.optimizer.lr:
+    min: 0.000001
+    max: 0.1
+    distribution: "log_uniform_values"
+  modelname.optimizer.warmup_steps:
+    values: [0, 100, 200, 500, 1000]
+  modelname.optimizer.weight_decay:
+    values: [0, 0.1, 0.01, 0.001]
+  # MMP
+  modelname.mmp.proj_mlp.hidden_dim:
+    values: [128, 256, 512, 1024]
+  modelname.mmp.proj_mlp.dropout:
+    values: [0.0, 0.1, 0.2]
+  modelname.mmp.attn_steps.dropout:
+    values: [0.0, 0.1, 0.2]
+  modelname.mmp.attn_steps.nhead:
+    values: [1, 2, 4, 8, 16]
+  modelname.mmp.num_aggregated_tokens:
+    values: [2, 4, 8, 16, 32]
+  modelname.mmp.loss_alignment_alpha:
+    min: 0.001
+    max: 1.0
+    distribution: "log_uniform_values"
+
+command:
+  - ${env}
+  - srun
+  - "-N"
+  - "1-1"
+  - "-T"
+  - "32"
+  - "-p"
+  - "pgpu"
+  - "--gres=gpu:2"
+  - "--job-name=SB-MMP"
+  - "--mem=200G"
+  - "--time"
+  - "48:00:00"
+  - "python3"
+  - ${program}
+  - --config-name=config
+  - modelname="mmp"
+  - dataset="mimic_haim"
+  - encoders="mimic_haim"
+  - wandb.group="None"
+  - batch_size=64
+  - missing.missing_train=[0.3]
+  - missing.missing_valid=[0.3]
+  - missing.missing_test=[0.3]
+  - ${args_no_hyphens}

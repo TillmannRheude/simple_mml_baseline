@@ -1,0 +1,55 @@
+# sweep.yaml
+program: /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main.py
+project: simple_mml_baseline
+name: ShaSpec - Symile
+method: bayes
+metric:
+  name: val/loss
+  goal: minimize
+
+parameters:
+  # Optimizer
+  modelname.optimizer.lr:
+    min: 0.000001
+    max: 0.1
+    distribution: "log_uniform_values"
+  modelname.optimizer.warmup_steps:
+    values: [0, 100, 200, 500, 1000]
+  modelname.optimizer.weight_decay:
+    values: [0, 0.1, 0.01, 0.001]
+  # ShaSpec
+  modelname.shaspec.loss_alpha:
+    min: 0.01
+    max: 1.0
+    distribution: "log_uniform_values"
+  modelname.shaspec.loss_beta:
+    min: 0.001
+    max: 0.1
+    distribution: "log_uniform_values"
+
+command:
+  - ${env}
+  - srun
+  - "-N"
+  - "1-1"
+  - "-T"
+  - "32"
+  - "-p"
+  - "gpu"
+  - "--gres=shard:2"
+  - "--job-name=SB-ShaSpec"
+  - "--mem=200G"
+  - "--time"
+  - "48:00:00"
+  - "python3"
+  - ${program}
+  - --config-name=config
+  - modelname="shaspec"
+  - dataset="mimic_symile"
+  - encoders="mimic_symile"
+  - wandb.group="None"
+  - batch_size=128
+  - missing.missing_train=[0.15,0.15]
+  - missing.missing_valid=[0.15,0.15]
+  - missing.missing_test=[0.15,0.15]
+  - ${args_no_hyphens}

@@ -1,0 +1,18 @@
+defaults:
+  - _self_
+
+audio:
+  transformer:
+    num_hidden_layers: 8
+    num_attention_heads: 8
+    intermediate_size: 1024  # MLP dim
+
+vision:
+  transformer:
+    num_hidden_layers: 8
+    num_attention_heads: 8
+    intermediate_size: 1024  # MLP dim
+
+monitor:
+  metric: "val/acc_5_max"
+  mode: "max"

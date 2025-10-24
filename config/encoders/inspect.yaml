@@ -1,0 +1,16 @@
+defaults:
+  - _self_
+
+monitor:
+  metric: "val/auroc_macro_epoch"
+  mode: "max"
+
+vision:
+  mlp:
+    hidden_dims: [256, 512, 256]
+    hidden_dropouts: [0.0, 0.0, 0.0]
+
+ehr:
+  mlp:
+    hidden_dims: [256, 512, 256]
+    hidden_dropouts: [0.0, 0.0, 0.0]

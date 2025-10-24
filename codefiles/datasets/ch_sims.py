@@ -1,94 +1,147 @@
+import os 
 import torch
+import torchcodec
 
 import pandas as pd
+
 from transformers import BertTokenizer
-from torchvision import transforms
-import torchaudio
-from torchaudio.transforms import Resample
-from torchvision.io import read_video
 from torch.utils.data import Dataset
 
 from codefiles.datasets.utils import create_missing_data_masks, apply_missing_mask
 
 
-""" Not tested yet, should not work as is."""
-
-
 class CH_Sims(Dataset):
-    def __init__(self,
-                 dataset_path: str = "/sc-projects/sc-proj-ukb-cvd/projects/mml_tr/IMDer/dataset/CHSIMS/", 
-                 split: str = "train",
-                 missing: bool = False,):
+    def __init__(
+        self,
+        dataset_path: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/CHSIMS", 
+        split: str = "train",
+        split_nr: int = 1, 
+        variant: str = "unimodal_1",
+        zero_fill_rates: list = [0.0, 0.0],
+        seed: int = 42
+    ) -> None: 
+        super().__init__()
+
+        self.num_modalities = 3
+        self.variant = variant
+
         self.datadir = dataset_path
-        self.annotations = pd.read_csv(f"{dataset_path}label.csv")
-        self.annotations = self.annotations[self.annotations.iloc[:, 8] == split]
+        self.chsims_dataset = pd.read_csv(os.path.join(dataset_path, "label_cv_splits.csv"))
+        self.chsims_dataset = self.chsims_dataset[self.chsims_dataset[f"cv_split_{split_nr}"] == split].reset_index(drop=True)
+
+        self.folder_names = self.chsims_dataset.loc[:, "file_name"]
+        self.file_names = self.chsims_dataset.loc[:, "id"]
+        self.texts = self.chsims_dataset.loc[:, "text"]
+        self.targets = self.chsims_dataset.loc[:, "unimodal_0"]
+
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
-        self.max_text_length = 128
 
-        # Video preprocessing transforms
-        self.video_transform = transforms.Compose([
-            transforms.Resize((112, 112)),
-            #transforms.Normalize(mean=[0.43216, 0.394666, 0.37645],
-            #                     std=[0.22803, 0.22145, 0.216989]),
-        ])
-
-        # Audio resampler
-        self.audio_resampler = Resample()
+        # missing data
+        self.zero_fill_masks, self.missing_stats = create_missing_data_masks(
+            total_samples=len(self.chsims_dataset),
+            num_modalities=self.num_modalities,
+            missing_rates=zero_fill_rates,
+            random_seed=seed
+        )
 
     def __len__(self):
-        return len(self.annotations)
+        return len(self.chsims_dataset)
 
     def __getitem__(self, idx):
+        video_path = os.path.join(self.datadir, self.folder_names[idx], str(self.file_names[idx]).zfill(4) + ".mp4")
+
         # Video
-        video_foldername = str(self.annotations.iloc[idx][0])  # Adjust column name as needed
-        video_filename = str(self.annotations.iloc[idx][1]).zfill(4) + ".mp4"
-        video_path = os.path.join(self.datadir, video_foldername, video_filename)
-        video_frames, audio_frames, info = read_video(video_path, pts_unit='sec')
-        video_frames = self.process_video(video_frames)
+        video_decoder = torchcodec.decoders.VideoDecoder(video_path)
+        video_frames = video_decoder[:]
+        video = video_frames.data  # (T, C, H, W)
+        # Video processing
+        video = torch.nn.functional.interpolate(
+            video.float(), size=(224, 224), mode='bilinear', align_corners=False
+        )
 
-        # Process audio frames
-        audio_frames = self.process_audio(audio_frames, info['audio_fps'])
+        # Audio
+        audio_decoder = torchcodec.decoders.AudioDecoder(video_path, sample_rate=44100, num_channels=1)
+        audio_samples = audio_decoder.get_all_samples()
+        audio = audio_samples.data
 
-        # Process text data
-        text = self.annotations.iloc[idx][2]
-        input_ids, attention_mask = self.process_text(text)
-
-        # Get label (if available)
-        label = self.annotations.iloc[idx][3]  # Adjust column name as needed
-        label = torch.tensor(label)  # dtype=torch.long
-
-        return {
-            'video': video_frames,                # Tensor: (Frames, Channels, Height, Width)
-            'audio': audio_frames,                # Tensor: (Audio Length)
-            'input_ids': input_ids,               # Tensor: (Seq Length)
-            'attention_mask': attention_mask,     # Tensor: (Seq Length)
-            'label': label                        # Tensor: ()
-        }
-
-    def process_video(self, video_frames):
-        # videoframes shape Frames, Height, Width, Channels
-        # to Channels, Frames, Height, Width
-        video_frames = video_frames.permute(-1, 0, 1, 2).float()
-        # Apply preprocessing to each frame
-        video_frames = self.video_transform(video_frames)
-        return video_frames
-
-    def process_audio(self, audio_frames, orig_freq):
-        audio_frames = self.audio_resampler(audio_frames)
-        # Convert to mono if stereo
-        if audio_frames.shape[0] > 1:
-            audio_frames = torch.mean(audio_frames, dim=0, keepdim=True)
-        return audio_frames
-
-    def process_text(self, text):
+        # Text 
+        text = self.texts[idx]
+        # Text processing 
         encoding = self.tokenizer(
             text,
             return_tensors='pt',
             padding='max_length',
             truncation=True,
-            max_length=self.max_text_length
+            max_length=128
         )
         input_ids = encoding['input_ids']
         attention_mask = encoding['attention_mask']
-        return input_ids, attention_mask
 
+        # Missing data
+        if not "unimodal" in self.variant:
+            video = apply_missing_mask(video, self.zero_fill_masks[idx, 0])
+            audio = apply_missing_mask(audio, self.zero_fill_masks[idx, 1])
+            input_ids = apply_missing_mask(input_ids.float(), self.zero_fill_masks[idx, 2])
+            attention_mask = apply_missing_mask(attention_mask.float(), self.zero_fill_masks[idx, 2])
+
+        # Get label
+        label = self.targets[idx]
+        label = torch.tensor(label).unsqueeze(0)
+
+        return {
+            'video': video,                
+            'audio': audio,
+            'input_ids': input_ids,
+            'attention_mask': attention_mask,
+            'label': label.long()
+        }
+
+
+def collate_fn(batch):
+    # Find max video length (T) and max audio length (num_samples)
+    audio_lens = [item['audio'].shape[-1] for item in batch]
+    max_video_len = 32  # 500 / 16 = 32
+    max_audio_len = max(audio_lens)
+
+    # Pad videos
+    padded_videos = []
+    for item in batch:
+        v = item['video']  # (T, C, H, W)
+        # only take every x-th frame
+        v = v[::16, ...]
+        pad_len = max_video_len - v.shape[0]
+        if pad_len > 0:
+            pad = torch.zeros((pad_len, v.shape[1], v.shape[2], v.shape[3]), dtype=v.dtype, device=v.device)
+            v = torch.cat([v, pad], dim=0)
+        padded_videos.append(v)
+    padded_videos = torch.stack(padded_videos, dim=0)  # (B, T, C, H, W)
+
+    # Pad audios
+    padded_audios = []
+    for item in batch:
+        a = item['audio']  # (num_channels, num_samples)
+        pad_len = max_audio_len - a.shape[-1]
+        if pad_len > 0:
+            pad = torch.zeros((a.shape[0], pad_len), dtype=a.dtype, device=a.device)
+            a = torch.cat([a, pad], dim=-1)
+        padded_audios.append(a)
+    padded_audios = torch.stack(padded_audios, dim=0)  # (B, num_channels, num_samples)
+
+    # Stack input_ids and attention_mask (already padded to max_length=128)
+    input_ids = torch.cat([item['input_ids'] for item in batch], dim=0)  # (B, L)
+    attention_mask = torch.cat([item['attention_mask'] for item in batch], dim=0)  # (B, L)
+
+    # Stack labels
+    labels = torch.stack([item['label'] for item in batch], dim=0)
+
+    # Stack text
+    text = torch.stack([input_ids, attention_mask], dim=1)
+
+    return {
+        'video': padded_videos,
+        'audio': padded_audios,
+        'input_ids': input_ids,
+        'attention_mask': attention_mask,
+        'text': text,
+        'label': labels,
+    }

@@ -15,7 +15,7 @@ class MIMIC_Symile(Dataset):
         split: str = "train",
         split_nr: int = 1,
         variant: str = "unimodal_1",
-        zero_fill_rates: list = [0.0, 0.0, 0.0],
+        zero_fill_rates: list = [0.0, 0.0],
         seed: int = 42
     ) -> None: 
         super().__init__()
@@ -23,10 +23,8 @@ class MIMIC_Symile(Dataset):
         self.num_modalities = 3
         self.variant = variant
 
-        # whole df
-        self.symile_dataset = pd.read_csv(f"{dataset_path}/{split}_split{split_nr}.csv")
+        self.symile_dataset = pd.read_csv(f"{dataset_path}{split}_split{split_nr}.csv")
 
-        # whole lab values
         lab_cols = [
             51221, 51265, 50912, 50971, 51222, 51301, 51249, 51279, 51250, 51248, 
             51277, 51006, 50983, 50902, 50882, 50868, 50931, 50960, 50893, 50970, 
@@ -114,7 +112,7 @@ class MIMIC_Symile(Dataset):
 
         # Laboratory value
         lab = self.labs[idx].float()
-        warnings.warn("Lab values are not normalized.")
+        lab = (lab - self.mean_labs) / self.std_labs
 
         # ECG 
         ecg = self.ecgs[idx].permute(0, 2, 1)

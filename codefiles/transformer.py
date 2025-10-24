@@ -13,14 +13,14 @@ class Multimodal_Transformer(nn.Module):
         dim_feedforward: int = 1024,
         dropout: float = 0.0,
         num_layers: int = 4,
-        dim_output: int = 10
+        dim_output: int = 10,
     ) -> None: 
         super().__init__()
 
         self.linear_out = nn.Linear(d_model, dim_output)
-        
         self.apply(self._init_weights)
 
+        # Transformer Head 
         self.transformer = nn.TransformerEncoder(
             nn.TransformerEncoderLayer(
                 d_model=d_model, 
@@ -31,7 +31,6 @@ class Multimodal_Transformer(nn.Module):
             ),
             num_layers=num_layers
         )
-
         self.transformer_cls = nn.ModuleList([
             AddCLSToken(d_model),
             AddPE(d_model),
@@ -68,8 +67,14 @@ class Multimodal_Transformer(nn.Module):
     def forward(
         self, 
         x: torch.Tensor = torch.Tensor,
-        src_mask: torch.Tensor = torch.Tensor
-    ) -> torch.Tensor:
+        src_mask: torch.Tensor = torch.Tensor,
+        y: torch.Tensor = None
+    ) -> dict:
+
+        if isinstance(x, list):
+            x = torch.cat(x, dim=1)
+        if isinstance(src_mask, list):
+            src_mask = torch.cat(src_mask, dim=1)
         
         for layer in self.transformer_cls:
             if isinstance(layer, nn.TransformerEncoder) and src_mask is not None:
@@ -77,5 +82,7 @@ class Multimodal_Transformer(nn.Module):
                 x = layer(x, src_key_padding_mask=src_mask)
             else:
                 x = layer(x)
-
-        return x
+        
+        return {
+            "logits": x
+        }

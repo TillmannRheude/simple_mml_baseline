@@ -1,0 +1,58 @@
+# sweep.yaml
+program: /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main.py
+project: simple_mml_baseline
+name: SimBaMM - VGGSound
+method: bayes
+metric:
+  name: val/loss
+  goal: minimize
+
+parameters:
+  # Head Transformer
+  modelname.head_transformer.d_model:
+    values: [32, 64, 128, 256, 512]
+  modelname.head_transformer.dim_feedforward:
+    values: [256, 512, 1024, 2048]
+  modelname.head_transformer.dropout:
+    values: [0, 0.1, 0.2]
+  modelname.head_transformer.nhead:
+    values: [4, 8, 16]
+  modelname.head_transformer.num_layers:
+    values: [2, 4, 6, 8]
+  # Optimizer
+  modelname.optimizer.lr:
+    min: 0.000001
+    max: 0.1
+    distribution: "log_uniform_values"
+  modelname.optimizer.warmup_steps:
+    values: [0, 100, 200, 500, 1000]
+  modelname.optimizer.weight_decay:
+    values: [0, 0.1, 0.01, 0.001]
+
+
+command:
+  - ${env}
+  - srun
+  - "-N"
+  - "1-1"
+  - "-T"
+  - "32"
+  - "-p"
+  - "gpu"
+  - "--gres=shard:3"
+  - "--job-name=SimBas"
+  - "--mem=200G"
+  - "--time"
+  - "48:00:00"
+  - "python3"
+  - ${program}
+  - --config-name=config
+  - modelname="transformer"
+  - dataset="vgg_sound"
+  - encoders="vgg_sound"
+  - wandb.group="vggsound_transformer"
+  - batch_size=16
+  - missing.missing_train=[0.0]
+  - missing.missing_valid=[0.0]
+  - missing.missing_test=[0.0]
+  - ${args_no_hyphens}

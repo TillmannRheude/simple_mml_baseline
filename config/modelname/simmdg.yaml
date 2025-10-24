@@ -1,0 +1,27 @@
+modelname: simmdg
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 0.00010944664791024936
+  warmup_steps: 1000
+  weight_decay: 0.0
+  eps: 1e-7
+  betas: [0.95, 0.99]
+
+pipeline:
+  full_seq: False
+
+head_transformer:
+  d_model: 128
+  num_layers: 8
+  dim_feedforward: 512
+  nhead: 4
+  dropout: 0.2
+
+simmdg:
+  proj_out_dim: 128
+  trans_hidden_dim: 512
+  temp: 0.1
+  loss_contrastive: 1.0
+  loss_distance: 1.0
+  loss_translation: 1.0

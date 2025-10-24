@@ -1,0 +1,26 @@
+modelname: mult
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 3e-4
+  warmup_steps: 0
+  weight_decay: 0.00
+  eps: 1e-7
+  betas: [0.95, 0.99]
+
+pipeline:
+  full_seq: True
+  
+head_transformer:
+  d_model: 256
+  num_layers: 8
+  dim_feedforward: 2048
+  nhead: 4
+  dropout: 0.2
+
+crossmodal_transformer:
+  d_model: 256  # = head_transformer.d_model
+  num_layers: 2
+  dim_feedforward: 512
+  nhead: 4
+  dropout: 0.1
