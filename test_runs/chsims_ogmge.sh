@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH --job-name=SB-CV
-#SBATCH -p gpu
-#SBATCH --gres=gpu:1
+#SBATCH --job-name=SB-CV-OGMGE
+#SBATCH -p pgpu
+#SBATCH --gres=gpu:2
 #SBATCH --mem=200G
 #SBATCH --time 48:00:00
-#SBATCH --array=1-3
+#SBATCH --array=0-4
 
 split_nr=${SLURM_ARRAY_TASK_ID}
 
@@ -22,15 +22,17 @@ modelname_head_transformer_nhead=16
 modelname_head_transformer_num_layers=6
 
 batch_size=16
-modelname_optimizer_lr=1.737375775220259e-05
+modelname_optimizer_lr=0.0010343035528283296
 modelname_optimizer_warmup_steps=1000
-modelname_optimizer_weight_decay=0.01
+modelname_optimizer_weight_decay=0.0
+modelname_ogm_alpha=0.035663634864700366
+modelname_ogm_use_ge=True
 
 python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_incltest.py split_nr=${split_nr} \
         dataset="ch_sims" \
         encoders="ch_sims" \
-        modelname=transformer \
-        wandb.group="CV-CHSims-SimBaMM" \
+        modelname=ogm \
+        wandb.group="CV-CHSims-OGMGE" \
         missing.missing_train=[0.0,0.0] \
         missing.missing_valid=[0.0,0.0] \
         missing.missing_test=[0.0,0.0] \
@@ -48,4 +50,6 @@ python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_inclte
         modelname.head_transformer.dim_feedforward=${modelname_head_transformer_dim_feedforward} \
         modelname.head_transformer.dropout=${modelname_head_transformer_dropout} \
         modelname.head_transformer.nhead=${modelname_head_transformer_nhead} \
-        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers}
+        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers} \
+        modelname.ogm.alpha=${modelname_ogm_alpha} \
+        modelname.ogm.use_ge=${modelname_ogm_use_ge} \

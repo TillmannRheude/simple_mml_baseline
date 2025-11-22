@@ -1,36 +1,43 @@
 #!/bin/bash
 
-#SBATCH --job-name=SB-CV
+#SBATCH --job-name=SB-CV-OMIB
 #SBATCH -p gpu
 #SBATCH --gres=gpu:1
 #SBATCH --mem=200G
 #SBATCH --time 48:00:00
-#SBATCH --array=1-3
+#SBATCH --array=0-4
 
 split_nr=${SLURM_ARRAY_TASK_ID}
 
-encoders_audio_transformer_num_hidden_layers=4
-encoders_audio_transformer_num_attention_heads=4
+encoders_audio_transformer_num_hidden_layers=8
+encoders_audio_transformer_num_attention_heads=2
 encoders_audio_transformer_intermediate_size=1024
 encoders_vision_transformer_num_hidden_layers=4
-encoders_vision_transformer_num_attention_heads=2
+encoders_vision_transformer_num_attention_heads=4
 encoders_vision_transformer_intermediate_size=512
-modelname_head_transformer_d_model=128
-modelname_head_transformer_dim_feedforward=2048
-modelname_head_transformer_dropout=0
+modelname_head_transformer_d_model=256
+modelname_head_transformer_dim_feedforward=1024
+modelname_head_transformer_dropout=0.1
 modelname_head_transformer_nhead=16
-modelname_head_transformer_num_layers=6
+modelname_head_transformer_num_layers=2
 
-batch_size=16
-modelname_optimizer_lr=1.737375775220259e-05
+modelname_optimizer_lr=0.00033126165825159425
 modelname_optimizer_warmup_steps=1000
 modelname_optimizer_weight_decay=0.01
+modelname_omib_beta=2.266482966765254e-05
+modelname_omib_cross_attn_network_dim_feedforward=1024
+modelname_omib_cross_attn_network_dropout=0.1
+modelname_omib_cross_attn_network_num_heads=1
+modelname_omib_cross_attn_network_num_layers=4
+modelname_omib_warmup_epochs=4
+
+batch_size=8
 
 python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_incltest.py split_nr=${split_nr} \
-        dataset="ch_sims" \
-        encoders="ch_sims" \
-        modelname=transformer \
-        wandb.group="CV-CHSims-SimBaMM" \
+        dataset="ch_sims_v2" \
+        encoders="ch_sims_v2" \
+        modelname=omib \
+        wandb.group="CV-CHSims2-OMIB" \
         missing.missing_train=[0.0,0.0] \
         missing.missing_valid=[0.0,0.0] \
         missing.missing_test=[0.0,0.0] \
@@ -48,4 +55,10 @@ python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_inclte
         modelname.head_transformer.dim_feedforward=${modelname_head_transformer_dim_feedforward} \
         modelname.head_transformer.dropout=${modelname_head_transformer_dropout} \
         modelname.head_transformer.nhead=${modelname_head_transformer_nhead} \
-        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers}
+        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers} \
+        modelname.omib.beta=${modelname_omib_beta} \
+        modelname.omib.cross_attn_network.dim_feedforward=${modelname_omib_cross_attn_network_dim_feedforward} \
+        modelname.omib.cross_attn_network.dropout=${modelname_omib_cross_attn_network_dropout} \
+        modelname.omib.cross_attn_network.num_heads=${modelname_omib_cross_attn_network_num_heads} \
+        modelname.omib.cross_attn_network.num_layers=${modelname_omib_cross_attn_network_num_layers} \
+        modelname.omib.warmup_epochs=${modelname_omib_warmup_epochs}

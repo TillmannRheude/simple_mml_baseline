@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=200G
 #SBATCH --time 48:00:00
-#SBATCH --array=1-5
+#SBATCH --array=4-4
 
 split_nr=${SLURM_ARRAY_TASK_ID}
 

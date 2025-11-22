@@ -1,36 +1,44 @@
 #!/bin/bash
 
-#SBATCH --job-name=SB-CV
+#SBATCH --job-name=SB-CV-MULT
 #SBATCH -p gpu
 #SBATCH --gres=gpu:1
 #SBATCH --mem=200G
 #SBATCH --time 48:00:00
-#SBATCH --array=1-3
+#SBATCH --array=0-4
 
 split_nr=${SLURM_ARRAY_TASK_ID}
 
-encoders_audio_transformer_num_hidden_layers=4
-encoders_audio_transformer_num_attention_heads=4
+encoders_audio_transformer_num_hidden_layers=8
+encoders_audio_transformer_num_attention_heads=2
 encoders_audio_transformer_intermediate_size=1024
 encoders_vision_transformer_num_hidden_layers=4
-encoders_vision_transformer_num_attention_heads=2
+encoders_vision_transformer_num_attention_heads=4
 encoders_vision_transformer_intermediate_size=512
-modelname_head_transformer_d_model=128
-modelname_head_transformer_dim_feedforward=2048
-modelname_head_transformer_dropout=0
+modelname_head_transformer_d_model=256
+modelname_head_transformer_dim_feedforward=1024
+modelname_head_transformer_dropout=0.1
 modelname_head_transformer_nhead=16
-modelname_head_transformer_num_layers=6
+modelname_head_transformer_num_layers=2
 
-batch_size=16
-modelname_optimizer_lr=1.737375775220259e-05
-modelname_optimizer_warmup_steps=1000
+# modelname.optimizer.lr=9.07642685175066e-06 modelname.optimizer.warmup_steps=500 modelname.optimizer.weight_decay=0.01 modelname.crossmodal_transformer.d_model=256 modelname.crossmodal_transformer.dim_feedforward=1024 modelname.crossmodal_transformer.dropout=0.5 modelname.crossmodal_transformer.nhead=4 modelname.crossmodal_transformer.num_layers=1
+
+modelname_optimizer_lr=9.07642685175066e-06
+modelname_optimizer_warmup_steps=500
 modelname_optimizer_weight_decay=0.01
+modelname_crossmodal_transformer_d_model=256
+modelname_crossmodal_transformer_dim_feedforward=1024
+modelname_crossmodal_transformer_dropout=0.5
+modelname_crossmodal_transformer_nhead=4
+modelname_crossmodal_transformer_num_layers=1
+
+batch_size=8
 
 python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_incltest.py split_nr=${split_nr} \
-        dataset="ch_sims" \
-        encoders="ch_sims" \
-        modelname=transformer \
-        wandb.group="CV-CHSims-SimBaMM" \
+        dataset="ch_sims_v2" \
+        encoders="ch_sims_v2" \
+        modelname=mult \
+        wandb.group="CV-CHSims2-MULT" \
         missing.missing_train=[0.0,0.0] \
         missing.missing_valid=[0.0,0.0] \
         missing.missing_test=[0.0,0.0] \
@@ -48,4 +56,9 @@ python3 /sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/main_inclte
         modelname.head_transformer.dim_feedforward=${modelname_head_transformer_dim_feedforward} \
         modelname.head_transformer.dropout=${modelname_head_transformer_dropout} \
         modelname.head_transformer.nhead=${modelname_head_transformer_nhead} \
-        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers}
+        modelname.head_transformer.num_layers=${modelname_head_transformer_num_layers} \
+        modelname.crossmodal_transformer.d_model=${modelname_crossmodal_transformer_d_model} \
+        modelname.crossmodal_transformer.dim_feedforward=${modelname_crossmodal_transformer_dim_feedforward} \
+        modelname.crossmodal_transformer.dropout=${modelname_crossmodal_transformer_dropout} \
+        modelname.crossmodal_transformer.nhead=${modelname_crossmodal_transformer_nhead} \
+        modelname.crossmodal_transformer.num_layers=${modelname_crossmodal_transformer_num_layers}
