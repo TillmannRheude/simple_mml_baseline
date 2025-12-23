@@ -4,7 +4,7 @@ import numpy as np
 
 from torch.utils.data import DataLoader
 
-from codefiles.datasets.mimic_haim import MIMIC_Haim, MIMIC_Haim_preloaded
+from codefiles.datasets.mimic_haim import MIMIC_Haim
 
 class MIMIC_Haim_Datamodule(pl.LightningDataModule):
 
@@ -28,14 +28,9 @@ class MIMIC_Haim_Datamodule(pl.LightningDataModule):
         self.debug = debug
 
     def setup(self, stage=None):
-        if self.debug:
-            self.train_dataset = MIMIC_Haim_preloaded(split="train", zero_fill_rates=self.missing["missing_train"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
-            self.val_dataset = MIMIC_Haim_preloaded(split="val", zero_fill_rates=self.missing["missing_valid"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
-            self.test_dataset = MIMIC_Haim_preloaded(split="test", zero_fill_rates=self.missing["missing_test"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
-        else:      
-            self.train_dataset = MIMIC_Haim(split="train", zero_fill_rates=self.missing["missing_train"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
-            self.val_dataset = MIMIC_Haim(split="val", zero_fill_rates=self.missing["missing_valid"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
-            self.test_dataset = MIMIC_Haim(split="test", zero_fill_rates=self.missing["missing_test"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
+        self.train_dataset = MIMIC_Haim(split="train", zero_fill_rates=self.missing["missing_train"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
+        self.val_dataset = MIMIC_Haim(split="val", zero_fill_rates=self.missing["missing_valid"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
+        self.test_dataset = MIMIC_Haim(split="test", zero_fill_rates=self.missing["missing_test"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True)

@@ -5,11 +5,6 @@ from codefiles.encoders import AddCLSToken, ExtractCLSToken, AddPE
 from codefiles.methods.imder.dit import Diffusion_Transformer
 from codefiles.methods.imder.diffusion import GaussianDiffusion1D
 
-from codefiles.helpers import is_running_in_notebook  # for reloading modules instead of restarting kernel
-if is_running_in_notebook():
-    from codefiles.methods.imder import dit
-    import importlib
-    importlib.reload(dit)
 from codefiles.methods.imder.dit import Diffusion_Transformer
 
 
@@ -143,7 +138,6 @@ class IMDer(nn.Module):
         condition: torch.Tensor, 
         src_mask: torch.Tensor, 
     ) -> list:
-        # get shapes
         bs, seq_len, emb_dim = condition.shape
 
         # Precompute modality boundaries
@@ -206,7 +200,6 @@ class IMDer(nn.Module):
         condition: torch.Tensor, 
         src_mask: torch.Tensor, 
     ) -> list:
-        # get shapes
         bs, seq_len, emb_dim = condition.shape
         si_squeezed_shape_cond = (bs * self.si, -1, emb_dim)
 
@@ -365,14 +358,12 @@ class IMDer(nn.Module):
             x_imputed_final,
             x
         )
-        # src_mask = self._add_cls_token_mask_to_src_mask(torch.zeros_like(src_mask, dtype=torch.bool)) # All modalities are present now
 
         # Transformer Head 
         for layer in self.transformer:
             if isinstance(layer, nn.TransformerEncoder) and src_mask is not None:                
                 x_complete = layer(
                     x_complete,
-                    # src_key_padding_mask=src_mask
                 )
             else:
                 x_complete = layer(x_complete)

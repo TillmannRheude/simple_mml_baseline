@@ -23,12 +23,12 @@ class GBlend_Transformer(nn.Module):
     ) -> None: 
         super().__init__()
 
-        # --- G-Blend State ---
+        # G-Blend State
         # -1 = fused head (default), 0, 1, ... = unimodal heads
         self.gblend_active_head = -1
         self.num_modalities = num_modalities
 
-        # --- Heads ---
+        # Heads
         self.unimodal_classifiers = nn.ModuleList(
             [nn.Linear(d_model, dim_output) for _ in range(self.num_modalities)]
         )

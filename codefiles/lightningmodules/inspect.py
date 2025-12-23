@@ -2,13 +2,11 @@ import torch
 
 import torch.nn as nn
 
-from torchmetrics.classification import MulticlassAccuracy, BinaryCalibrationError
+from torchmetrics.classification import BinaryCalibrationError
 
 from codefiles.lightningmodules.utils import ( 
-    NaNMultilabelAUROC,
     LightningModuleParent
 )
-from codefiles.losses.nanbce import WeightedNaNBCEWithLogitsLoss
 from torchmetrics.classification import BinaryAUROC
 
 class INSPECT_Lightning_Module(LightningModuleParent):
@@ -31,34 +29,24 @@ class INSPECT_Lightning_Module(LightningModuleParent):
         },
         params_arl: dict = {},
         params_dgl: dict = {},
-        params_mcr: dict = {},
         params_mmpareto: dict = {},
         params_bmml: dict = {},
         params_gblend: dict = {},
         params_pdf: dict = {},
-        params_pmr: dict = {},
         params_omib: dict = {},
-        params_smil: dict = {},
-        params_avmc: dict = {},
-        params_ebr: dict = {},
-        params_simmlm: dict = {},
+        params_aug: dict = {},
     ) -> None: 
         super().__init__(
             manual_opt=manual_opt, 
             params_ogm=params_ogm, 
             params_arl=params_arl, 
             params_dgl=params_dgl, 
-            params_mcr=params_mcr, 
             params_mmpareto=params_mmpareto, 
             params_bmml=params_bmml, 
             params_gblend=params_gblend, 
             params_pdf=params_pdf,
-            params_pmr=params_pmr,
             params_omib=params_omib,
-            params_smil=params_smil,
-            params_avmc=params_avmc,
-            params_ebr=params_ebr,
-            params_simmlm=params_simmlm,
+            params_aug=params_aug,
         )
         
         self.model = model
@@ -67,7 +55,7 @@ class INSPECT_Lightning_Module(LightningModuleParent):
 
         self.dataset = dataset
         
-        self.loss = WeightedNaNBCEWithLogitsLoss()
+        self.loss = nn.BCEWithLogitsLoss()
 
         self.ignore_index = -100
         self.binary_eces = [BinaryCalibrationError(norm="l1", ignore_index=self.ignore_index) for _ in range(1)]
@@ -76,14 +64,12 @@ class INSPECT_Lightning_Module(LightningModuleParent):
         self.binary_eces_test = [BinaryCalibrationError(norm="l1", ignore_index=self.ignore_index) for _ in range(1)]
         self.binary_mces_test = [BinaryCalibrationError(norm="max", ignore_index=self.ignore_index) for _ in range(1)]
         self.binary_rmsces_test = [BinaryCalibrationError(norm="l2", ignore_index=self.ignore_index) for _ in range(1)]
-        # get AUROC for all labels together
         self.metric_train_macro = BinaryAUROC()
         self.metric_val_macro = BinaryAUROC()
         self.metric_test_macro = BinaryAUROC()
         self.metric_train_micro = BinaryAUROC()
         self.metric_val_micro = BinaryAUROC()
         self.metric_test_micro = BinaryAUROC()
-        # get AUROC of every label
         self.metrics_detailed = [BinaryAUROC() for i in range(3)]
         self.all_val_aurocs_macro, self.all_val_aurocs_micro = [], []
         self.all_test_aurocs_macro, self.all_test_aurocs_micro = [], []
@@ -107,10 +93,13 @@ class INSPECT_Lightning_Module(LightningModuleParent):
         self.metric_val_macro.update(shared_dict["logits"].view(-1, 1), shared_dict["y"].view(-1, 1))
         self.metric_val_micro.update(shared_dict["logits"].view(-1, 1), shared_dict["y"].view(-1, 1))
         self.metrics_detailed[1].update(shared_dict["logits"].view(-1, 1), shared_dict["y"].view(-1, 1))
+        
         for i in range(1):
             shared_dict["y"][torch.isnan(shared_dict["y"])] = self.ignore_index
             logits = shared_dict["logits"].to(torch.float32)
             y = shared_dict["y"].to(torch.float32)
+            if logits.ndim > 1 and logits.shape[1] == 1 and y.ndim == 1:
+                y = y[:, None]
             self.binary_eces[i].update(nn.Sigmoid()(logits[:, i]), y[:, i])
             self.binary_mces[i].update(nn.Sigmoid()(logits[:, i]), y[:, i])
             self.binary_rmsces[i].update(nn.Sigmoid()(logits[:, i]), y[:, i])
@@ -197,10 +186,6 @@ class INSPECT_Lightning_Module(LightningModuleParent):
         self.log("test/auroc_micro_max", max_test_acc, sync_dist=False)
 
         auroc_detailed = self.metrics_detailed[2].compute()
-
-        clf_labels = ["test/" + clf for clf in self.clf_labels]
-        label_auroc_dict = {lab: auroc for lab, auroc in zip(clf_labels, auroc_detailed)}
-        self.log_dict(label_auroc_dict, on_epoch=True, prog_bar=False, logger=True, sync_dist=True)
 
         binary_eces = [self.binary_eces_test[i].compute() for i in range(1)]
         binary_mces = [self.binary_mces_test[i].compute() for i in range(1)]

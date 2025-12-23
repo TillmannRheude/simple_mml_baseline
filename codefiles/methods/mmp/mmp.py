@@ -258,16 +258,6 @@ class Masked_Modality_Projection_Transformer(nn.Module):
         x = torch.cat(modalities_features, dim=1)
         
         for layer in self.transformer_cls:
-            #if isinstance(layer, nn.TransformerEncoder) and src_mask is not None:
-            #    token_level_mask_per_modality = []
-            #    for i in range(self.num_modalities):
-            #        mask_for_mod = torch.full((x.shape[0], seq_lens[i]), fill_value=False, device=x.device, dtype=torch.bool)
-            #        mask_for_mod[modality_is_missing[:, i]] = True
-            #        token_level_mask_per_modality.append(mask_for_mod)  
-            #    token_level_mask = torch.cat(token_level_mask_per_modality, dim=1)
-            #    token_level_mask = self._add_cls_token_mask_to_src_mask(token_level_mask)
-            #    x = layer(x, src_key_padding_mask=token_level_mask)
-            #else:
             x = layer(x)
 
         return {

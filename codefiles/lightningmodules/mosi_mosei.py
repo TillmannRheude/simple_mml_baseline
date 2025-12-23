@@ -4,8 +4,6 @@ import torch.nn.functional as F
 from torchmetrics.classification import MulticlassAccuracy, BinaryAccuracy, BinaryF1Score, MulticlassCalibrationError
 
 from codefiles.lightningmodules.utils import (
-    get_input,
-    get_target,
     LightningModuleParent
 )
 
@@ -30,38 +28,29 @@ class MOSI_Lightning_Module(LightningModuleParent):
         },
         params_arl: dict = {},
         params_dgl: dict = {},
-        params_mcr: dict = {},
         params_mmpareto: dict = {},
         params_bmml: dict = {},
         params_gblend: dict = {},
         params_pdf: dict = {},
-        params_pmr: dict = {},
         params_omib: dict = {},
-        params_smil: dict = {},
-        params_avmc: dict = {},
-        params_ebr: dict = {},
-        params_simmlm: dict = {},
+        params_aug: dict = {},
     ) -> None: 
         super().__init__(
             manual_opt=manual_opt, 
             params_ogm=params_ogm, 
             params_arl=params_arl, 
             params_dgl=params_dgl, 
-            params_mcr=params_mcr, 
             params_mmpareto=params_mmpareto, 
             params_bmml=params_bmml, 
             params_gblend=params_gblend, 
             params_pdf=params_pdf,
-            params_pmr=params_pmr,
             params_omib=params_omib,
-            params_smil=params_smil,
-            params_avmc=params_avmc,
-            params_ebr=params_ebr,
-            params_simmlm=params_simmlm,
+            params_aug=params_aug,
         )
+        
         self.model = model
         self.params_optimizer = params_optimizer
-        self.loss = nn.CrossEntropyLoss()  #nn.L1Loss()
+        self.loss = nn.CrossEntropyLoss() 
         self.dataset = dataset
 
         self.acc_2_train = BinaryAccuracy()
@@ -92,11 +81,6 @@ class MOSI_Lightning_Module(LightningModuleParent):
         logits = shared_dict["logits"]
         y = shared_dict["y"]
 
-        # Filter non-zero entries
-        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        #binary_targets = (y[non_zeros] > 0).squeeze()
-        #binary_predictions = (logits[non_zeros] > 0)
-
         predicted_classes = torch.argmax(logits, dim=1)
         non_neutral_mask = (y != 3)
 
@@ -122,11 +106,6 @@ class MOSI_Lightning_Module(LightningModuleParent):
         logits = shared_dict["logits"]
         y = shared_dict["y"]
 
-        # Filter non-zero entries
-        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        #binary_targets = (y[non_zeros] > 0).squeeze()
-        #binary_predictions = (logits[non_zeros] > 0)
-
         predicted_classes = torch.argmax(logits, dim=1)
         non_neutral_mask = (y != 3)
 
@@ -151,11 +130,6 @@ class MOSI_Lightning_Module(LightningModuleParent):
 
         logits = shared_dict["logits"]
         y = shared_dict["y"]
-
-        # Filter non-zero entries
-        #non_zeros = torch.tensor([i for i, e in enumerate(y) if e != 0])
-        #binary_targets = (y[non_zeros] > 0).squeeze()
-        #binary_logits = (logits.squeeze()[non_zeros] > 0)
 
         predicted_classes = torch.argmax(logits, dim=1)
         non_neutral_mask = (y != 3)
@@ -201,10 +175,6 @@ class MOSI_Lightning_Module(LightningModuleParent):
         max_val_f1 = max(self.all_val_f1s)
         self.log("val/f1_epoch", val_f1, sync_dist=True)
         self.log("val/f1_max", max_val_f1, sync_dist=True)
-
-        #self.log("val/ece_epoch", self.ece.compute())
-        #self.log("val/mce_epoch", self.mce.compute())
-        #self.log("val/rmsce_epoch", self.rmsce.compute())
 
         self.acc_2_val.reset()
         self.acc_7_val.reset()

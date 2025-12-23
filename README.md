@@ -1,14 +1,27 @@
 # Simple Baseline for Multimodal Learning
 
 <p align="center">
-  <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="50%">
+  <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="40%">
 </p>
 
 ## Abstract
-Deep learning architectures for multimodal learning have seen a rapid increase in complexity, driven by the assumption that more sophisticated models yield better performance. Through a large-scale study of $19$ methods across eleven multimodal datasets, we demonstrate that performance of multimodal learning and multimodal learning with missing modalities is often misattributed to complex design decisions. Instead, we find that rigorous evaluation and the effective implementation of core mechanisms, such as attention, are the true drivers of success.
-Our analysis identifies common methodological shortcomings in the literature, e.g., insufficient cross-validation, a lack of hyperparameter tuning, or missing evaluations on diverse, real-world data. We subject existing models to new tasks and additional modalities beyond their original scope to assess their promised generalizability. We find that more complex architectures frequently fail to scale or generalize, revealing critical weaknesses.
-Based on these findings, we propose a Simple Baseline for Multimodal Learning (SimBaMM), an efficient and robust model that outperforms more complex counterparts even with missing modalities, leading to an inflated perception of their capabilities. We argue for a shift in focus: away from the pursuit of architectural novelty and towards methodological rigor.
+Deep learning architectures for multimodal learning have seen a rapid increase in complexity, driven by the assumption that sophisticated multimodal-specific methods are required to improve performance. We challenge this assumption through a large-scale empirical study reimplementing 19 high-impact methods under standardized conditions, evaluating them across nine diverse datasets with up to 23 modalities, and testing their generalizability to new tasks beyond their original scope, including settings with missing modalities. We propose a Simple Baseline for Multimodal Learning (SimBaMM), a straightforward late-fusion Transformer architecture, and demonstrate that under standardized experimental conditions with rigorous hyperparameter tuning of all methods, more complex architectures do not reliably outperform SimBaMM. Statistical analysis confirms that more complex methods are at best practically equivalent to SimBaMM, and often fail to reliably outperform well-tuned unimodal baselines, particularly in the small data regime where many methods were originally, and often exclusively, evaluated. To strengthen our findings, we include a case study of a recent multimodal learning method highlighting the methodological shortcomings in the literature. To support comparable, robust, and trustworthy future results, we provide a pragmatic reliability checklist. In summary, we argue for a shift in focus: away from the pursuit of architectural novelty and toward methodological rigor.
 
-## Get started
+## Get Started
+- All essential Python modules are located in the `codefiles` directory.
+- Method re-implementations can be found primarily in `codefiles/methods` (with some located in other subfolders such as `codefiles/encoders` if necessary).
+- Use `main.ipynb` for quick experimentation and debugging; use `main.py` for full-scale training and evaluation runs.
+
+## Add Dataset, Method, ...
+TODO 
 
 ## Citation
+In case you find our work helpful, we're happy if you cite us as following
+```bibtex
+@unpublished{fusion_or_confusion,
+  title={Fusion or Confusion? Multimodal Complexity Is Not All You Need},
+  author={Rheude, T., Wild, B., Eils, R.},
+  url={TODO},
+  year={2025},
+  publisher={arXiv},
+}

@@ -7,10 +7,10 @@ monitor:
 
 vision:
   mlp:
-    hidden_dims: [256, 512, 256]
+    hidden_dims: [512, 256, 128]
     hidden_dropouts: [0.0, 0.0, 0.0]
 
 ehr:
   mlp:
-    hidden_dims: [256, 512, 256]
+    hidden_dims: [512, 256, 128]
     hidden_dropouts: [0.0, 0.0, 0.0]

@@ -1,4 +1,3 @@
-import math
 import torch 
 import torch.nn as nn 
 
@@ -16,7 +15,6 @@ class Multimodal_Transformer(nn.Module):
         dim_output: int = 10,
     ) -> None: 
         super().__init__()
-
         self.linear_out = nn.Linear(d_model, dim_output)
         self.apply(self._init_weights)
 
@@ -28,6 +26,7 @@ class Multimodal_Transformer(nn.Module):
                 dim_feedforward=dim_feedforward, 
                 dropout=dropout,
                 batch_first=True,
+                # norm_first=True,
             ),
             num_layers=num_layers
         )
@@ -82,7 +81,7 @@ class Multimodal_Transformer(nn.Module):
                 x = layer(x, src_key_padding_mask=src_mask)
             else:
                 x = layer(x)
-        
+                
         return {
-            "logits": x
+            "logits": x,
         }

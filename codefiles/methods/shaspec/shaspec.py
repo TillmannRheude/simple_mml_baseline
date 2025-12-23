@@ -172,17 +172,6 @@ class Shared_Specific_Feature_Modelling_Transformer(nn.Module):
         decoder_input = torch.stack(features_for_decoder, dim=1) # (B, N_modalities, D)
         logits = decoder_input
         for layer in self.decoder:
-            #if isinstance(layer, nn.TransformerEncoder):
-                # Create a padding mask for the decoder sequence.
-                # A feature is masked if its original modality was missing.
-            #    decoder_mask = torch.tensor(
-            #        [not (i in available_indices) for i in range(self.num_modalities)],
-            #        device=logits.device
-            #    ).unsqueeze(0).expand(logits.size(0), -1)
-                
-            #    mask_with_cls = self._add_cls_token_mask_to_src_mask(decoder_mask)
-            #     logits = layer(logits, src_key_padding_mask=mask_with_cls)
-            #else:
             logits = layer(logits)
 
         output = {"logits": logits}

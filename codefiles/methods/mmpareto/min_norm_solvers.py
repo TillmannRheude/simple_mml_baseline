@@ -2,6 +2,11 @@ import numpy as np
 import torch
 
 
+"""
+https://github.com/GeWu-Lab/MMPareto_ICML2024/blob/main/code/min_norm_solvers.py
+"""
+
+
 class MinNormSolver:
     MAX_ITER = 250
     STOP_CRIT = 1e-5

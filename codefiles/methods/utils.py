@@ -1,6 +1,5 @@
 import torch 
 import torch.nn as nn 
-import numpy as np
 
 def mimetic_init_svd_(
     module: nn.Module,
@@ -15,6 +14,7 @@ def mimetic_init_svd_(
     [1] A. Trockman and J. Z. Kolter, “Mimetic initialization of self-attention layers” 
     """
     if isinstance(module, (nn.MultiheadAttention)):
+        print("applying mimetic_init_svd_ to multi head attention")
         embed_dim = module.embed_dim
         device = module.in_proj_weight.device
         dtype = module.in_proj_weight.dtype

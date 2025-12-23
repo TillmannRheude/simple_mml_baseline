@@ -3,17 +3,6 @@ import math
 import torch.nn as nn 
 import torch.nn.functional as F
 
-from codefiles.encoders import AddCLSToken, ExtractCLSToken, AddPE
-from codefiles.methods.imder.dit import Diffusion_Transformer
-from codefiles.methods.imder.diffusion import GaussianDiffusion1D
-
-from codefiles.helpers import is_running_in_notebook  # for reloading modules instead of restarting kernel
-if is_running_in_notebook():
-    from codefiles.methods.imder import dit
-    import importlib
-    importlib.reload(dit)
-from codefiles.methods.imder.dit import Diffusion_Transformer
-
 
 class OGM(nn.Module):
 
@@ -103,14 +92,14 @@ class OGM(nn.Module):
     
     def _calc_modulation_coefficients(
         self,
-        unimodal_embeds: list, # List of [batch, dim] tensors
+        unimodal_embeds: list, 
         y: torch.Tensor,
     ) -> list:
         if y.dim() == 1:
             y = y.unsqueeze(1)
 
-        device = unimodal_embeds[0].device # Get device from input
-        y = y.to(device) # Ensure y is on the correct device
+        device = unimodal_embeds[0].device
+        y = y.to(device)
 
         # Determine task type based on label dtype
         is_regression = y.dtype in [torch.float, torch.float16, torch.float32, torch.float64, torch.bfloat16]
@@ -129,7 +118,6 @@ class OGM(nn.Module):
         s_modality_contributions = []
 
         if is_regression:
-            # --- REGRESSION LOGIC ---
             # Contribution is inverse of L1 error. Invalid labels are NaNs.
             valid_mask = ~torch.isnan(y)
 
@@ -147,9 +135,7 @@ class OGM(nn.Module):
                     torch.zeros_like(contribution)
                 )
                 s_modality_contributions.append(masked_contribution)
-
         else:
-            # --- CLASSIFICATION LOGIC ---
             unimodal_logits = unimodal_outputs
             # Calculate contribution scores s_i^u (Equation 8)
             unimodal_probs = []
@@ -157,7 +143,6 @@ class OGM(nn.Module):
                 probs = F.softmax(unimodal_logits[i], dim=1)
                 unimodal_probs.append(probs)
 
-            # --- Start Invalid Label Handling ---
             # A label is invalid if it is NaN or -1
             valid_mask = (~torch.isnan(y)) & (y != -1) # Identify valid targets
 
@@ -167,20 +152,17 @@ class OGM(nn.Module):
                 y.long(), # Use original target if valid
                 torch.zeros_like(y, dtype=torch.long) # Use 0 if target was invalid
             )
-            # --- End Invalid Label Handling ---
 
             for i in range(len(unimodal_logits)):
                 # Gather probabilities using safe indices
                 gathered_probs = torch.gather(unimodal_probs[i], 1, y_safe_indices)
 
-                # --- Start Invalid Label Handling ---
                 # Zero out contributions where the original y was invalid
                 masked_gathered_probs = torch.where(
                     valid_mask,
                     gathered_probs,
                     torch.zeros_like(gathered_probs) # Set contribution to 0 for invalid targets
                 )
-                # --- End Invalid Label Handling ---
                 s_modality_contributions.append(masked_gathered_probs)
 
         # Calculate sum S_modality using only valid contributions
@@ -193,13 +175,11 @@ class OGM(nn.Module):
         rhos = []
         total_S = torch.sum(torch.stack(S_modality)) # Sum of all valid contributions
 
-        # --- Start NaN Handling ---
         # Handle case where all targets might be NaN (total_S is zero)
         if total_S.item() < eps:
             # Assign a default rho (e.g., 1.0 implying no discrepancy signal)
             rhos = [torch.tensor(1.0, device=device) for _ in S_modality]
         else:
-        # --- End NaN Handling ---
             for i in range(len(S_modality)):
                 # Original calculation, now safe due to total_S check and valid S_modality sums
                 denominator = total_S - S_modality[i] + eps
@@ -209,13 +189,11 @@ class OGM(nn.Module):
         # Calculate modulation coefficient k_t^u (Equation 10)
         k_modality = []
         for i in range(len(rhos)):
-            # Ensure tensors are created on the correct device
             k = torch.tensor(1.0, device=device)
-            if rhos[i].item() > 1.0: # Use .item() for comparison
+            if rhos[i].item() > 1.0: 
                 # Ensure alpha and rho are floats for math.tanh
                 alpha_val = self.alpha if isinstance(self.alpha, (int, float)) else self.alpha.item()
                 rho_val = F.relu(rhos[i]).item() # Apply relu to ratio, as in the official implementation.
-                # Ensure result tensor is on the correct device
                 k = torch.tensor(1.0 - math.tanh(alpha_val * rho_val), device=device)
             k_modality.append(k)
 

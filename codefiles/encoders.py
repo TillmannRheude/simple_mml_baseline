@@ -1,76 +1,66 @@
 import math
-import copy 
 import torch 
-import numpy as np 
-import torchaudio
-import torch.nn as nn 
 
+import torch.nn as nn 
 import torchvision.models as models
-# import torchtune.modules.layer_norm.Fp32LayerNorm as LayerNorm
 
 from transformers import (
     BertModel, BertConfig,
-    AutoImageProcessor, VivitModel, VivitConfig, VivitForVideoClassification, VivitImageProcessor,
-    AutoFeatureExtractor, Wav2Vec2Config, Wav2Vec2Model
+    VivitModel, VivitConfig, 
+    Wav2Vec2Config, Wav2Vec2Model
 )
-from codefiles.methods.utils import mimetic_init_svd_
+
 from codefiles.methods.regbn.rbn_adjusted import RegBN
 
+""" Helpers """
 class Sequential_Tokenizer_and_Bert(nn.Module):
-    def __init__(
-        self,
-        chinese: bool = False,
-        full_seq: bool = False
-    ) -> None: 
+    def __init__(self, chinese: bool = False, full_seq: bool = False) -> None:
         super().__init__()
-
         self.use_finetune = False
         self.use_pretrain_bert = True
         self.full_seq = full_seq
-
         self.chinese = chinese
 
         if self.use_pretrain_bert:
-            self.language_model = BertModel.from_pretrained('bert-base-uncased') if not chinese else BertModel.from_pretrained('bert-base-chinese')
-        else: 
+            self.language_model = (
+                BertModel.from_pretrained("bert-base-uncased")
+                if not chinese
+                else BertModel.from_pretrained(
+                    "bert-base-chinese",
+                    cache_dir="/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache",
+                )
+            )
+        else:
             self.language_model = BertModel(BertConfig())
 
+        if not self.use_finetune:
+            self.language_model.requires_grad_(False)
+            self.language_model.eval()
+
     def forward(self, text):
-        if self.chinese: 
-            input_ids, input_mask = text[:,0,:].long(), text[:,1,:].float()
+        if self.chinese:
+            input_ids = text[:, 0, :].long()
+            input_mask = text[:, 1, :].float()
+            if self.use_finetune:
+                last_hidden_states = self.language_model(input_ids=input_ids, attention_mask=input_mask)[0]
+            else:
+                with torch.no_grad():
+                    last_hidden_states = self.language_model(input_ids=input_ids, attention_mask=input_mask)[0]
+        else:
+            input_ids = text[:, 0, :].long()
+            input_mask = text[:, 1, :].float()
+            segment_ids = text[:, 2, :].long()
             if self.use_finetune:
                 last_hidden_states = self.language_model(
-                    input_ids=input_ids,
-                    attention_mask=input_mask
+                    input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids
                 )[0]
             else:
                 with torch.no_grad():
-                    for param in self.language_model.parameters():
-                        param.requires_grad = False
-                    self.language_model.eval()
                     last_hidden_states = self.language_model(
-                        input_ids=input_ids,
-                        attention_mask=input_mask
-                    )[0]
-        if not self.chinese:
-            input_ids, input_mask, segment_ids = text[:,0,:].long(), text[:,1,:].float(), text[:,2,:].long()
-            if self.use_finetune:
-                last_hidden_states = self.language_model(input_ids=input_ids,
-                                                        attention_mask=input_mask,
-                                                        token_type_ids=segment_ids)[0]
-            else:
-                with torch.no_grad():
-                    for param in self.language_model.parameters():
-                        param.requires_grad = False
-                    self.language_model.eval()
-                    last_hidden_states = self.language_model(input_ids=input_ids,
-                                                    attention_mask=input_mask,
-                                                    token_type_ids=segment_ids)[0]
-        
-        if self.full_seq:
-            return last_hidden_states
-        else:
-            return last_hidden_states[:, 0, :]
+                    input_ids=input_ids, attention_mask=input_mask, token_type_ids=segment_ids
+                )[0]
+
+        return last_hidden_states if self.full_seq else last_hidden_states[:, 0, :]
 
 class Unsqueeze_Sequence(nn.Module):
     def __init__(self):
@@ -117,106 +107,12 @@ class ExtractCLSToken(nn.Module):
         return x[:, 0, :]
 
 class AddPE(nn.Module):
-    def __init__(self, embdim):
+    def __init__(self, embdim, max_len=7000):
         super().__init__()
-        self.pe = PositionalEncoding(d_model=embdim)
+        self.pe = PositionalEncoding(d_model=embdim, max_len=max_len)
         
     def forward(self, x):
         return self.pe(x.permute(1, 0, 2)).permute(1, 0, 2)
-
-class Reshape(nn.Module):
-    def __init__(self):
-        super().__init__()
-    def forward(self, x):
-        return x.view(x.shape[0], -1)
-
-class Vanilla_3D_ViT(nn.Module):
-    def __init__(
-        self, 
-        image_size: int = 512,
-        patch_size: int = 15,
-        dim: int = 512, 
-        depth: int = 2, 
-        heads: int = 4, 
-        mlp_dim: int = 1024, 
-        dropout: float = 0.,
-        emb_dropout: float = 0., 
-        in_channels: int = 1,
-        full_seq: bool = False,
-    ) -> None:
-        super().__init__()
-
-        self.patch_embedding = nn.Conv3d(
-            in_channels,
-            dim,
-            kernel_size=(patch_size, patch_size, patch_size),
-            stride=(patch_size, patch_size, patch_size)
-        )
-
-        self.linear_out = nn.Linear(dim, dim)
-        self.apply(self._init_weights)
-
-        transformer_encoder_layer = nn.TransformerEncoderLayer(
-            d_model=dim,
-            nhead=heads,
-            dim_feedforward=mlp_dim,
-            dropout=dropout,
-            batch_first=True
-        )
-        
-        vit = nn.TransformerEncoder(
-                transformer_encoder_layer,
-                num_layers=depth
-        )
-
-        self.vit = nn.ModuleList([
-            AddCLSToken(dim),
-            AddPE(dim),
-            vit,
-            ExtractCLSToken(),
-            self.linear_out
-        ])
-
-        if full_seq:
-            self.vit = nn.ModuleList([
-                AddCLSToken(dim),
-                AddPE(dim),
-                vit,
-                self.linear_out
-            ])
-
-    def _init_weights(
-            self,
-            m
-        ) -> None: 
-        if isinstance(m, (torch.nn.LayerNorm)):
-            torch.nn.init.constant_(m.weight, 1)
-            torch.nn.init.constant_(m.bias, 0)
-        elif isinstance(m, torch.nn.Linear):
-            torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
-            if m.bias is not None:
-                torch.nn.init.zeros_(m.bias)
-        elif isinstance(m, torch.nn.Conv3d):
-            torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
-            if m.bias is not None:
-                torch.nn.init.zeros_(m.bias)
-
-    def forward(
-            self,
-            x 
-        ):
-        
-        if x.dim() == 4:
-            x = x.unsqueeze(1)
-
-        x = self.patch_embedding(x)
-        x = x.flatten(2).transpose(1, 2)
-
-        for module in self.vit:
-            x = module(x)
-        
-        return x
-
 
 
 """ Encoders """
@@ -421,31 +317,6 @@ class Encoders_RegBN(nn.Module):
                 return torch.cat(common_latents, dim=1), total_l1_loss
             else:
                 return torch.cat(common_latents, dim=1)
-
-
-""" MNIST """
-class Encoder_MNIST(Parent_Encoder):
-
-    def __init__(
-        self, 
-        latent_dim: int = 128,
-    ) -> None:
-        super().__init__()
-
-        self.encoder = nn.Sequential(
-            Reshape(), 
-            nn.Linear(in_features=14*28, out_features=512),
-            nn.ReLU(), 
-            nn.Linear(in_features=512, out_features=1024),
-            nn.ReLU(), 
-            nn.Linear(1024, 512), 
-            nn.ReLU(), 
-            nn.Linear(512, 256), 
-            nn.ReLU(),
-            nn.Linear(256, latent_dim),  
-        )
-
-        self.apply(self._init_weights)
 
 
 """ HAIM """
@@ -667,76 +538,15 @@ class Encoder_INSPECT_Vision(Parent_Encoder):
         self, 
         latent_dim: int = 128,
         params: dict = {
-            "input_dim": 50,
-            "hidden_dims": [256, 512, 256],
-            "hidden_dropouts": [0.0, 0.0, 0.0],
-        }
-    ) -> None:
-        super().__init__()
-
-        #self.encoder = nn.Sequential(
-        #    nn.Linear(5120, params["hidden_dims"][0]),
-        #    nn.ReLU(),
-        #    nn.LayerNorm(params["hidden_dims"][0]),
-        #    nn.Dropout(params["hidden_dropouts"][0]),
-        #    nn.Linear(params["hidden_dims"][0], params["hidden_dims"][1]),
-        #    nn.ReLU(),
-        #    nn.LayerNorm(params["hidden_dims"][1]),
-        #    nn.Dropout(params["hidden_dropouts"][1]),
-        #    nn.Linear(params["hidden_dims"][1], params["hidden_dims"][2]),
-        #    nn.ReLU(),
-        #    nn.LayerNorm(params["hidden_dims"][2]),
-        #    nn.Dropout(params["hidden_dropouts"][2]),
-        #    nn.Linear(params["hidden_dims"][2], latent_dim),
-        #)
-
-        # self.encoder_full_seq = nn.Sequential(
-        #    self.encoder,
-        #)
-        
-        #self.encoder.apply(self._init_weights)
-
-        self.encoder = Vanilla_3D_ViT(
-            image_size=512,
-            patch_size=15,
-            dim=latent_dim,
-            depth=2,
-            heads=4,
-            mlp_dim=1024,
-            dropout=0.0,
-            emb_dropout=0.0,
-            in_channels=1,
-            full_seq=False,
-        )
-
-        self.encoder_full_seq = Vanilla_3D_ViT(
-            image_size=512,
-            patch_size=15,
-            dim=latent_dim,
-            depth=2,
-            heads=4,
-            mlp_dim=1024,
-            dropout=0.0,
-            emb_dropout=0.0,
-            in_channels=1,
-            full_seq=True,
-        )
-
-class Encoder_INSPECT_EHR(Parent_Encoder):
-
-    def __init__(
-        self, 
-        latent_dim: int = 128,
-        params: dict = {
-            "input_dim": 50,
-            "hidden_dims": [256, 512, 256],
+            "input_dim": 768,
+            "hidden_dims": [512, 256, 128],
             "hidden_dropouts": [0.0, 0.0, 0.0],
         }
     ) -> None:
         super().__init__()
 
         self.encoder = nn.Sequential(
-            nn.Linear(769, params["hidden_dims"][0]),
+            nn.Linear(768, params["hidden_dims"][0]),
             nn.ReLU(),
             nn.LayerNorm(params["hidden_dims"][0]),
             nn.Dropout(params["hidden_dropouts"][0]),
@@ -753,9 +563,48 @@ class Encoder_INSPECT_EHR(Parent_Encoder):
 
         self.encoder_full_seq = nn.Sequential(
             self.encoder,
+            Unsqueeze_Sequence(),
         )
 
         self.encoder.apply(self._init_weights)
+        self.encoder_full_seq.apply(self._init_weights)
+
+class Encoder_INSPECT_EHR(Parent_Encoder):
+
+    def __init__(
+        self, 
+        latent_dim: int = 128,
+        params: dict = {
+            "input_dim": 769,
+            "hidden_dims": [512, 256, 128],
+            "hidden_dropouts": [0.0, 0.0, 0.0],
+        }
+    ) -> None:
+        super().__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Linear(params["input_dim"], params["hidden_dims"][0]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][0]),
+            nn.Dropout(params["hidden_dropouts"][0]),
+            nn.Linear(params["hidden_dims"][0], params["hidden_dims"][1]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][1]),
+            nn.Dropout(params["hidden_dropouts"][1]),
+            nn.Linear(params["hidden_dims"][1], params["hidden_dims"][2]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][2]),
+            nn.Dropout(params["hidden_dropouts"][2]),
+            nn.Linear(params["hidden_dims"][2], latent_dim),
+        )
+
+        self.encoder_full_seq = nn.Sequential(
+            self.encoder,
+            Unsqueeze_Sequence(),
+        )
+
+        self.encoder.apply(self._init_weights)
+        self.encoder_full_seq.apply(self._init_weights)
 
 
 """ MOSI """
@@ -915,12 +764,11 @@ class Encoder_CHS_Vision(Parent_Encoder):
     ) -> None: 
         super().__init__()
 
-        cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-
         class Helper_Model(nn.Module):
             def __init__(self, full_seq: bool = False):
                 super().__init__()
                 self.full_seq = full_seq
+                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
                 config = VivitConfig(
                     num_frames=32,
                     image_size=224,
@@ -946,7 +794,6 @@ class Encoder_CHS_Vision(Parent_Encoder):
         self.encoder_full_seq = nn.Sequential(
             Helper_Model(full_seq=True),
         )
-        # self.encoder.apply(self._init_weights)
 
 class Encoder_CHS_Audio(Parent_Encoder):
 
@@ -961,50 +808,17 @@ class Encoder_CHS_Audio(Parent_Encoder):
         ) -> None:
         super().__init__()
 
-        model_name = "facebook/wav2vec2-base-960h"
-        cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache"
-
-        class Helper_AudioProcessor(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resampler = torchaudio.transforms.Resample(
-                    orig_freq=44100, 
-                    new_freq=16000
-                )
-                self.feature_extractor = AutoFeatureExtractor.from_pretrained(
-                    model_name, 
-                    cache_dir=cache_dir,
-                    # force_download=True
-                )
-            
-            def forward(self, x):
-                x = self.resampler(x)
-
-                # workaround since wav2vec2 only supports float32
-                orig_dtype = x.dtype
-                orig_device = x.device
-                x = x.to(torch.float32)
-
-                out = self.feature_extractor(
-                    x, 
-                    sampling_rate=16000, 
-                    return_tensors="pt"
-                ).input_values.squeeze()  # queeze(0).squeeze(0)
-
-                out = out.to(orig_dtype)
-                out = out.to(orig_device)
-
-                return out
-        
         class Helper_Model(nn.Module):
             def __init__(self, full_seq: bool = False):
                 super().__init__()
                 self.full_seq = full_seq
+                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache"
                 config = Wav2Vec2Config(
                     hidden_size=latent_dim,
                     num_hidden_layers=params["num_hidden_layers"],
                     num_attention_heads=params["num_attention_heads"],
                     intermediate_size=params["intermediate_size"],
+                    cache_dir=cache_dir,
                 )
                 self.model = Wav2Vec2Model(config=config)
 
@@ -1017,168 +831,86 @@ class Encoder_CHS_Audio(Parent_Encoder):
                 return out
 
         self.encoder = nn.Sequential(
-            Helper_AudioProcessor(),
             Helper_Model()
         )
         self.encoder_full_seq = nn.Sequential(
-            Helper_AudioProcessor(),
             Helper_Model(full_seq=True),
         )
-        # self.encoder.apply(self._init_weights)
-
-
-""" VisionTouch """
-class Encoder_VisionTouch_Vision(Parent_Encoder):
-
-    def __init__(
-            self, 
-            latent_dim: int = 128,
-            params: dict = {
-                "vit_dropout": 0.0,
-            }
-        ) -> None:
-        super().__init__()
-
-        self.encoder = models.vit_b_16(weights=None, dropout=params["vit_dropout"])
-        self.encoder.heads.head = nn.Linear(768, latent_dim)
-
-        self.encoder.apply(self._init_weights)
-
-class Encoder_VisionTouch_Proprio(Parent_Encoder):
-
-    def __init__(
-            self, 
-            latent_dim: int = 128
-        ) -> None:
-        super().__init__()
-        
-        self.encoder = nn.Sequential(
-            nn.Linear(8, latent_dim // 2),
-            nn.ReLU(),
-            nn.LayerNorm(latent_dim // 2),
-            nn.Linear(latent_dim // 2, latent_dim)
-        )
-        self.encoder.apply(self._init_weights)
-
-class Encoder_VisionTouch_Force(Parent_Encoder):
-
-    def __init__(
-            self, 
-            latent_dim: int = 128,
-            params: dict = {
-                "transformer_num_layers": 6,
-                "transformer_num_attention_heads": 1,
-                "transformer_dim_feedforward": 1024,
-                "transformer_dropout": 0.0,
-            }
-        ) -> None:
-        super().__init__()
-
-        transformer = nn.TransformerEncoder(
-                nn.TransformerEncoderLayer(
-                    d_model=latent_dim,
-                    nhead=params["transformer_num_attention_heads"],
-                    dim_feedforward=params["transformer_dim_feedforward"],
-                    dropout=params["transformer_dropout"],
-                    batch_first=True
-                ),
-                num_layers=params["transformer_num_layers"]
-            )
-        self.encoder = nn.Sequential(
-            nn.Linear(6, latent_dim),
-            AddCLSToken(latent_dim),
-            transformer,
-            ExtractCLSToken()
-        )
-        self.encoder.apply(self._init_weights)
 
 
 """ CREMA-D """
 class Encoder_CREMA_D_Video(Parent_Encoder):
     def __init__(
             self, 
-            latent_dim: int = 128,
             params: dict = {
-                "num_hidden_layers": 12,
-                "num_attention_heads": 12,
-                "hidden_size": 1024,
-                "dropout": 0.0,
+                "vit_dim": 256,
+                "vit_heads": 2,
+                "vit_depth": 4,
+                "vit_mlp_dim": 256,
+                "vit_dropout": 0.1,
+                "latent_dim": 256,
             }
         ) -> None:
         super().__init__()
-
-        model_name = "google/vivit-b-16x2"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-
-        class Extract_Pooler_Output(nn.Module):
-            def __init__(self):
-                super().__init__()
-            def forward(self, x):
-                return x["pooler_output"]
-
-        class ViViT_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-
-                config = VivitConfig(
-                    num_frames=32,
-                    image_size=224,
-                    hidden_size=params["hidden_size"],
-                    num_hidden_layers=params["num_hidden_layers"],
-                    num_attention_heads=params["num_attention_heads"],
-                    cache_dir=cache_dir,
-                )
-                self.model = nn.Sequential(
-                    VivitModel(config=config),
-                    Extract_Pooler_Output(),
-                    nn.Linear(params["hidden_size"], latent_dim)
-                )
-
-            def forward(self, x):
-                # debug
-                # x = torch.zeros_like(x)
-
-                out = self.model(x)
-                return out
-
+        
         class Image_Encoder(nn.Module):
             def __init__(self):
                 super().__init__()
 
-                #vit_b_16 = models.vit_b_16(weights=None)
-                #vit_b_16.heads.head = nn.Linear(768, latent_dim)
+                self.resnet = models.resnet18(weights=None)  # , norm_layer=PermutedLayerNorm  # , norm_layer=None
+                self.resnet.fc = nn.Linear(self.resnet.fc.in_features, params["latent_dim"])
+                self.resnet.fc.apply(self._init_weights)
 
-                self.resnet = models.resnet18(weights=None)
-                self.resnet.fc = nn.Linear(self.resnet.fc.in_features, latent_dim)
+            def _init_weights(
+                    self,
+                    m
+                ) -> None: 
+                if isinstance(m, (torch.nn.LayerNorm)):
+                    torch.nn.init.constant_(m.weight, 1)
+                    torch.nn.init.constant_(m.bias, 0)
+                elif isinstance(m, torch.nn.Conv2d):
+                    torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
+                    if m.bias is not None:
+                        torch.nn.init.zeros_(m.bias)
+                elif isinstance(m, torch.nn.Linear):
+                    torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
+                    if m.bias is not None:
+                        torch.nn.init.zeros_(m.bias)
+                elif isinstance(m, torch.nn.BatchNorm2d):
+                    torch.nn.init.ones_(m.weight)
+                    torch.nn.init.zeros_(m.bias)
 
             def forward(self, x):
                 return self.resnet(x)
 
         self.encoder = nn.Sequential(
-            #ViViT_Model(),
-            Image_Encoder(),
+            Image_Encoder()
         )
-        self.encoder.apply(self._init_weights)
+
+        self.encoder_full_seq = nn.Sequential(
+            Image_Encoder(),
+            Unsqueeze_Sequence()
+        )
 
 class Encoder_CREMA_D_Audio(Parent_Encoder):
     def __init__(
             self, 
             latent_dim: int = 128,
             params: dict = {
-                "num_hidden_layers": 6,
-                "num_attention_heads": 1,
-                "hidden_size": 768,
+                "vit_dim": 256,
+                "vit_heads": 2,
+                "vit_depth": 4,
+                "vit_mlp_dim": 256,
+                "vit_dropout": 0.1,
+                "latent_dim": 256,
             }
         ) -> None:
         super().__init__()
-        
-        model_name = "facebook/wav2vec2-base-960h"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
 
         class ResNetForSpectrogram(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.resnet = models.resnet18(weights=None)
+                self.resnet = models.resnet18(weights=None)  # , norm_layer=None , norm_layer=nn.Identity
                 original_conv1 = self.resnet.conv1
                 self.resnet.conv1 = nn.Conv2d(
                     in_channels=1,
@@ -1189,334 +921,117 @@ class Encoder_CREMA_D_Audio(Parent_Encoder):
                     bias=original_conv1.bias
                 )
                 num_ftrs = self.resnet.fc.in_features
-                self.resnet.fc = nn.Linear(num_ftrs, latent_dim)
+                self.resnet.fc = nn.Linear(num_ftrs, params["latent_dim"])
+                self.resnet.conv1.apply(self._init_weights)
+                self.resnet.fc.apply(self._init_weights)
+            
+            def _init_weights(
+                    self,
+                    m
+                ) -> None: 
+                if isinstance(m, (torch.nn.LayerNorm)):
+                    torch.nn.init.constant_(m.weight, 1)
+                    torch.nn.init.constant_(m.bias, 0)
+                elif isinstance(m, torch.nn.Conv2d):
+                    torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
+                    if m.bias is not None:
+                        torch.nn.init.zeros_(m.bias)
+                elif isinstance(m, torch.nn.Linear):
+                    torch.nn.init.kaiming_normal_(m.weight, mode="fan_out")
+                    if m.bias is not None:
+                        torch.nn.init.zeros_(m.bias)
+                elif isinstance(m, torch.nn.BatchNorm2d):
+                    torch.nn.init.ones_(m.weight)
+                    torch.nn.init.zeros_(m.bias)
 
             def forward(self, x):
                 return self.resnet(x)
 
-        class Extract_Pooler_Output(nn.Module):
-            def __init__(self):
-                super().__init__()
-            def forward(self, x):
-                return x["last_hidden_state"].mean(dim=1)
-
-        class AudioProcessor(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resampler = torchaudio.transforms.Resample(
-                    orig_freq=41000, 
-                    new_freq=16000
-                )
-                self.feature_extractor = AutoFeatureExtractor.from_pretrained(
-                    model_name, 
-                    cache_dir=cache_dir
-                )
-            
-            def forward(self, x):
-                x = self.resampler(x)
-
-                # workaround since wav2vec2 only supports float32
-                orig_dtype = x.dtype
-                orig_device = x.device
-                x = x.to(torch.float32)
-
-                out = self.feature_extractor(
-                    x,
-                    sampling_rate=16000,
-                    return_tensors="pt"
-                ).input_values.squeeze()
-
-                out = out.to(orig_dtype)
-                out = out.to(orig_device)
-
-                return out
-            
-        class Wav2Vec2_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-                config = Wav2Vec2Config(
-                    hidden_size=params["hidden_size"],
-                    num_hidden_layers=params["num_hidden_layers"],
-                    num_attention_heads=params["num_attention_heads"],
-                )
-                self.model = nn.Sequential(
-                    Wav2Vec2Model(config=config),
-                    Extract_Pooler_Output(),
-                    nn.Linear(params["hidden_size"], latent_dim)
-                )
-
-            def forward(self, x):
-                # debug 
-                x = torch.zeros_like(x)
-
-                out = self.model(x)
-                return out
-
         self.encoder = nn.Sequential(
-            #AudioProcessor(),
-            #Wav2Vec2_Model(),
             ResNetForSpectrogram()
         )
-        self.encoder.apply(self._init_weights)
 
+        self.encoder_full_seq = nn.Sequential(
+            ResNetForSpectrogram(),
+            Unsqueeze_Sequence()
+        )
 
-""" VGG """
-class Encoder_VGG_Video(Parent_Encoder):
-    def __init__(
-            self, 
-            latent_dim: int = 128
-        ) -> None:
+class PrintLayer(nn.Module):
+    def __init__(self):
         super().__init__()
+    def forward(self, x):
+        print(x.shape)
+        return x
 
-        model_name = "google/vivit-b-16x2"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-            
-        class Helper_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-                config = VivitConfig(
-                    num_frames=32,
-                    image_size=224,
-                    hidden_size=latent_dim,
-                    num_hidden_layers=8,
-                    num_attention_heads=8,
-                    cache_dir=cache_dir
-                )
-                self.model = VivitModel(
-                    config=config,
-                )
-            def forward(self, x):
-                out = self.model(x)["pooler_output"][:, None, :].squeeze(1)  # only CLS token  # **x
-                return out
 
-        class Image_Encoder(nn.Module):
-            def __init__(self):
-                super().__init__()
-
-                #vit_b_16 = models.vit_b_16(weights=None)
-                #vit_b_16.heads.head = nn.Linear(768, latent_dim)
-
-                self.resnet = models.resnet18(weights=None)
-                self.resnet.fc = nn.Linear(self.resnet.fc.in_features, latent_dim)
-
-            def forward(self, x):
-                return self.resnet(x)
+""" Mystery MML """
+class Encoder_MysteryMML_Tabular(Parent_Encoder):
+    def __init__(
+        self, 
+        latent_dim: int = 128,
+        params: dict = {
+            "hidden_dims": [256, 512, 256],
+            "hidden_dropouts": [0.0, 0.0, 0.0],
+        }
+    ) -> None:
+        super().__init__()
 
         self.encoder = nn.Sequential(
-            #Helper_Model(),
-            Image_Encoder()
+            nn.Linear(50, params["hidden_dims"][0]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][0]),
+            nn.Dropout(params["hidden_dropouts"][0]),
+            nn.Linear(params["hidden_dims"][0], params["hidden_dims"][1]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][1]),
+            nn.Dropout(params["hidden_dropouts"][1]),
+            nn.Linear(params["hidden_dims"][1], params["hidden_dims"][2]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][2]),
+            nn.Dropout(params["hidden_dropouts"][2]),
+            nn.Linear(params["hidden_dims"][2], latent_dim),
         )
         self.encoder.apply(self._init_weights)
-
-class Encoder_VGG_Audio(Parent_Encoder):
-    def __init__(
-            self, 
-            latent_dim: int = 128
-        ) -> None:
-        super().__init__()
         
-        model_name = "facebook/wav2vec2-base-960h"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-
-        class Helper_AudioProcessor(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resampler = torchaudio.transforms.Resample(
-                    orig_freq=16000, 
-                    new_freq=16000
-                )
-                self.feature_extractor = AutoFeatureExtractor.from_pretrained(
-                    model_name, 
-                    cache_dir=cache_dir
-                )
-            
-            def forward(self, x):
-                x = self.resampler(x)
-
-                # workaround since wav2vec2 only supports float32
-                orig_dtype = x.dtype
-                orig_device = x.device
-                x = x.to(torch.float32)
-
-                out = self.feature_extractor(
-                    x,
-                    sampling_rate=16000,
-                    return_tensors="pt"
-                ).input_values.squeeze()
-
-                out = out.to(orig_dtype)
-                out = out.to(orig_device)
-
-                return out
-            
-        class Helper_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-                config = Wav2Vec2Config(
-                    hidden_size=latent_dim,
-                    num_hidden_layers=6,
-                    num_attention_heads=1,
-                )
-                self.model = Wav2Vec2Model(config=config)
-
-            def forward(self, x):
-                out = self.model(x)
-                out = torch.mean(out.last_hidden_state, dim=1)  # mean pooling
-                return out
-
-        class ResNetForSpectrogram(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resnet = models.resnet18(weights=None)
-                original_conv1 = self.resnet.conv1
-                self.resnet.conv1 = nn.Conv2d(
-                    in_channels=1,
-                    out_channels=original_conv1.out_channels,
-                    kernel_size=original_conv1.kernel_size,
-                    stride=original_conv1.stride,
-                    padding=original_conv1.padding,
-                    bias=original_conv1.bias
-                )
-                num_ftrs = self.resnet.fc.in_features
-                self.resnet.fc = nn.Linear(num_ftrs, latent_dim)
-
-            def forward(self, x):
-                return self.resnet(x)
-
-        self.encoder = nn.Sequential(
-            #Helper_AudioProcessor(),
-            #Helper_Model()
-            ResNetForSpectrogram()
+        self.encoder_full_seq = nn.Sequential(
+            self.encoder,
+            Unsqueeze_Sequence(),
         )
-        self.encoder.apply(self._init_weights)
 
 
-""" Kinetics"""
-class Encoder_Kinetics_Video(Parent_Encoder):
+""" UKB """
+class Encoder_UKB_Tabular(Parent_Encoder):
     def __init__(
-            self, 
-            latent_dim: int = 128
-        ) -> None:
+        self, 
+        latent_dim: int = 128,
+        params: dict = {
+            "input_dim": 769,
+            "hidden_dims": [512, 256, 128],
+            "hidden_dropouts": [0.0, 0.0, 0.0],
+        }
+    ) -> None:
         super().__init__()
 
-        model_name = "google/vivit-b-16x2"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-            
-        class Helper_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-                config = VivitConfig(
-                    num_frames=32,
-                    image_size=224,
-                    hidden_size=latent_dim,
-                    num_hidden_layers=8,
-                    num_attention_heads=8,
-                    cache_dir=cache_dir
-                )
-                self.model = VivitModel(
-                    config=config,
-                )
-            def forward(self, x):
-                out = self.model(x)["pooler_output"][:, None, :].squeeze(1)  # only CLS token  # **x
-                return out
-
-        class Image_Encoder(nn.Module):
-            def __init__(self):
-                super().__init__()
-
-                #vit_b_16 = models.vit_b_16(weights=None)
-                #vit_b_16.heads.head = nn.Linear(768, latent_dim)
-
-                self.resnet = models.resnet18(weights=None)
-                self.resnet.fc = nn.Linear(self.resnet.fc.in_features, latent_dim)
-
-            def forward(self, x):
-                return self.resnet(x)
-
         self.encoder = nn.Sequential(
-            #Helper_Model(),
-            Image_Encoder()
+            nn.Linear(params["input_dim"], params["hidden_dims"][0]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][0]),
+            nn.Dropout(params["hidden_dropouts"][0]),
+            nn.Linear(params["hidden_dims"][0], params["hidden_dims"][1]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][1]),
+            nn.Dropout(params["hidden_dropouts"][1]),
+            nn.Linear(params["hidden_dims"][1], params["hidden_dims"][2]),
+            nn.ReLU(),
+            nn.LayerNorm(params["hidden_dims"][2]),
+            nn.Dropout(params["hidden_dropouts"][2]),
+            nn.Linear(params["hidden_dims"][2], latent_dim),
         )
-        self.encoder.apply(self._init_weights)
 
-class Encoder_Kinetics_Audio(Parent_Encoder):
-    def __init__(
-            self, 
-            latent_dim: int = 128
-        ) -> None:
-        super().__init__()
-        
-        model_name = "facebook/wav2vec2-base-960h"
-        cache_dir = "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
-
-        class Helper_AudioProcessor(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resampler = torchaudio.transforms.Resample(
-                    orig_freq=16000, 
-                    new_freq=16000
-                )
-                self.feature_extractor = AutoFeatureExtractor.from_pretrained(
-                    model_name, 
-                    cache_dir=cache_dir
-                )
-            
-            def forward(self, x):
-                x = self.resampler(x)
-
-                # workaround since wav2vec2 only supports float32
-                orig_dtype = x.dtype
-                orig_device = x.device
-                x = x.to(torch.float32)
-
-                out = self.feature_extractor(
-                    x,
-                    sampling_rate=16000,
-                    return_tensors="pt"
-                ).input_values.squeeze()
-
-                out = out.to(orig_dtype)
-                out = out.to(orig_device)
-
-                return out
-            
-        class Helper_Model(nn.Module):
-            def __init__(self):
-                super().__init__()
-                config = Wav2Vec2Config(
-                    hidden_size=latent_dim,
-                    num_hidden_layers=6,
-                    num_attention_heads=1,
-                )
-                self.model = Wav2Vec2Model(config=config)
-
-            def forward(self, x):
-                out = self.model(x)
-                out = torch.mean(out.last_hidden_state, dim=1)  # mean pooling
-                return out
-
-        class ResNetForSpectrogram(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.resnet = models.resnet18(weights=None)
-                original_conv1 = self.resnet.conv1
-                self.resnet.conv1 = nn.Conv2d(
-                    in_channels=1,
-                    out_channels=original_conv1.out_channels,
-                    kernel_size=original_conv1.kernel_size,
-                    stride=original_conv1.stride,
-                    padding=original_conv1.padding,
-                    bias=original_conv1.bias
-                )
-                num_ftrs = self.resnet.fc.in_features
-                self.resnet.fc = nn.Linear(num_ftrs, latent_dim)
-
-            def forward(self, x):
-                return self.resnet(x)
-
-        self.encoder = nn.Sequential(
-            #Helper_AudioProcessor(),
-            #Helper_Model()
-            ResNetForSpectrogram()
+        self.encoder_full_seq = nn.Sequential(
+            self.encoder,
+            Unsqueeze_Sequence(),
         )
+
         self.encoder.apply(self._init_weights)
+        self.encoder_full_seq.apply(self._init_weights)

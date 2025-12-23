@@ -30,34 +30,24 @@ class MIMIC_Lightning_Module(LightningModuleParent):
         },
         params_arl: dict = {},
         params_dgl: dict = {},
-        params_mcr: dict = {},
         params_mmpareto: dict = {},
         params_bmml: dict = {},
         params_gblend: dict = {},
         params_pdf: dict = {},
-        params_pmr: dict = {},
         params_omib: dict = {},
-        params_smil: dict = {},
-        params_avmc: dict = {},
-        params_ebr: dict = {},
-        params_simmlm: dict = {},
+        params_aug: dict = {},
     ) -> None: 
         super().__init__(
             manual_opt=manual_opt, 
             params_ogm=params_ogm, 
             params_arl=params_arl, 
             params_dgl=params_dgl, 
-            params_mcr=params_mcr, 
             params_mmpareto=params_mmpareto, 
             params_bmml=params_bmml, 
             params_gblend=params_gblend, 
             params_pdf=params_pdf,
-            params_pmr=params_pmr,
             params_omib=params_omib,
-            params_smil=params_smil,
-            params_avmc=params_avmc,
-            params_ebr=params_ebr,
-            params_simmlm=params_simmlm,
+            params_aug=params_aug,
         )
         
         self.model = model
@@ -77,14 +67,14 @@ class MIMIC_Lightning_Module(LightningModuleParent):
         self.binary_eces_test = [BinaryCalibrationError(norm="l1", ignore_index=self.ignore_index) for _ in range(10)]
         self.binary_mces_test = [BinaryCalibrationError(norm="max", ignore_index=self.ignore_index) for _ in range(10)]
         self.binary_rmsces_test = [BinaryCalibrationError(norm="l2", ignore_index=self.ignore_index) for _ in range(10)]
-        # get AUROC for all labels together
+
         self.metric_train_macro = NaNMultilabelAUROC(num_labels=10, average='macro')
         self.metric_val_macro = NaNMultilabelAUROC(num_labels=10, average='macro')
         self.metric_test_macro = NaNMultilabelAUROC(num_labels=10, average='macro')
         self.metric_train_micro = NaNMultilabelAUROC(num_labels=10, average='micro')
         self.metric_val_micro = NaNMultilabelAUROC(num_labels=10, average='micro')
         self.metric_test_micro = NaNMultilabelAUROC(num_labels=10, average='micro')
-        # get AUROC of every label
+
         self.metrics_detailed = [NaNMultilabelAUROC(num_labels=10, average=None) for i in range(3)]
         self.all_val_aurocs_macro, self.all_val_aurocs_micro = [], []
         self.all_test_aurocs_macro, self.all_test_aurocs_micro = [], []
@@ -153,7 +143,7 @@ class MIMIC_Lightning_Module(LightningModuleParent):
 
     def on_validation_epoch_end(self):
         if len(self.params_gblend) > 0:
-            super().on_validation_epoch_end()
+            super().validation_epoch_end(outputs=None)
 
         if not self.trainer.sanity_checking:
             val_acc = self.metric_val_macro.compute()

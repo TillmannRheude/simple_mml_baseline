@@ -19,6 +19,6 @@ head_transformer:
   dropout: 0.2
 
 gblend:
-  mode: offline  # offline / online
+  mode: online  # offline / online
   update_freq: 1
   lookahead_epochs: 3
