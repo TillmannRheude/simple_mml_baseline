@@ -20,7 +20,7 @@ In case you find our work helpful, we're happy if you cite us as following
 ```bibtex
 @unpublished{fusion_or_confusion,
   title={Fusion or Confusion? Multimodal Complexity Is Not All You Need},
-  author={Rheude, T., Wild, B., Eils, R.},
+  author={Rheude, Tillmann and Eils, Roland and Wild, Benjamin},
   url={TODO},
   year={2025},
   publisher={arXiv},
