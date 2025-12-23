@@ -1,4 +1,4 @@
-# Fusion or Confusion? Multimocal Complexity Is Not All You Need
+# Fusion or Confusion?
 
 <p align="center">
   <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="40%">
