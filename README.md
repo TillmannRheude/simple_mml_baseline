@@ -1,4 +1,4 @@
-# Simple Baseline for Multimodal Learning
+# Fusion or Confusion? Multimocal Complexity Is Not All You Need
 
 <p align="center">
   <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="40%">
