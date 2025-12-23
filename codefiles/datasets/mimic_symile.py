@@ -88,7 +88,6 @@ class MIMIC_Symile(Dataset):
         numpy.ndarray
             Baseline wander removed ECG data with same shape as input
         """
-        # Ensure input is numpy array
         ecg_data = np.asarray(ecg_data)
         
         # Create high-pass filter

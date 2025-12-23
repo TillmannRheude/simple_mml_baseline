@@ -4,7 +4,7 @@ import numpy as np
 
 from torch.utils.data import DataLoader
 
-from codefiles.datasets.inspect import INSPECT, inspect_collate_fn
+from codefiles.datasets.inspect import INSPECT
 
 class INSPECT_Datamodule(pl.LightningDataModule):
 
@@ -31,11 +31,11 @@ class INSPECT_Datamodule(pl.LightningDataModule):
         self.test_dataset = INSPECT(split="test", zero_fill_rates=self.missing["missing_test"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True, collate_fn=inspect_collate_fn)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True)  
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False, collate_fn=inspect_collate_fn)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False)
     
     def test_dataloader(self,):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False, collate_fn=inspect_collate_fn)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False) 
 

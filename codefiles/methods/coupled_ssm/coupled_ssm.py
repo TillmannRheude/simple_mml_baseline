@@ -99,8 +99,6 @@ class CoupledMambaLayer(nn.Module):
 
         # Algorithm 1: line 13-15
         A = -torch.exp(self.A_logs)
-        # S_o = torch.exp(all_delta.unsqueeze(-1) * self.A_logs.unsqueeze(0).unsqueeze(1).unsqueeze(2))
-        # numerical stability fix 
         S_o = torch.exp(all_delta.unsqueeze(-1) * A.unsqueeze(0).unsqueeze(1).unsqueeze(2))
         B_o = all_delta.unsqueeze(-1) * all_B.unsqueeze(-2)
 
@@ -126,7 +124,8 @@ class CoupledMambaLayer(nn.Module):
         h = S_o * h_sum_t_minus_1.unsqueeze(0) + B_o * all_u_prime.unsqueeze(-1)
 
         # Standard Mamba update
-        y = torch.einsum("m b l d n, m b l n -> m b l d", h, all_C)
+        # y = torch.einsum("m b l d n, m b l n -> m b l d", h, all_C)
+        y = (h * all_C[:, :, :, None, :]).sum(dim=-1)
         y = y + all_u_prime * self.D
 
         # Algorithm 1: line 19
@@ -141,6 +140,16 @@ class CoupledMambaLayer(nn.Module):
 
         return outputs
 
+def uniform_subsample(x: torch.Tensor, target_len: int = 300) -> torch.Tensor:
+    """
+    Non-learnable subsampling: (B, L, D) -> (B, target_len, D) by selecting indices.
+    If L <= target_len, returns x unchanged.
+    """
+    B, L, D = x.shape
+    if L <= target_len:
+        return x
+    idx = torch.linspace(0, L - 1, steps=target_len, device=x.device).long()
+    return x[:, idx, :]
 
 class Coupled_State_Space_Model(nn.Module):
 
@@ -210,6 +219,9 @@ class Coupled_State_Space_Model(nn.Module):
         src_mask: list = [torch.Tensor, torch.Tensor, torch.Tensor], 
         y: torch.Tensor = None
     ) -> dict:
+        # Uniform subsampling
+        x = [uniform_subsample(mod, target_len=300) for mod in x]
+        
         # Pad all modalities to the same sequence length
         max_len = 0
         for tensor in x:

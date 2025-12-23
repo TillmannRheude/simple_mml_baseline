@@ -30,20 +30,9 @@ class MIMIC_Symile_Datamodule(pl.LightningDataModule):
         self.train_dataset = MIMIC_Symile(split="train", zero_fill_rates=self.missing["missing_train"], variant=self.variant, split_nr=self.split_nr, seed=self.seed)
         self.val_dataset = MIMIC_Symile(split="val", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed)
         self.test_dataset = MIMIC_Symile(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed)
-        
-        # Create a separate dataset instance for meta-validation that is always complete.
-        meta_zero_fill_rates = self.missing["missing_train"].copy()
-        for i in range(len(meta_zero_fill_rates)):
-            meta_zero_fill_rates[i] = 0.0
-        self.meta_val_dataset = MIMIC_Symile(split="train", zero_fill_rates=meta_zero_fill_rates, variant=self.variant, split_nr=self.split_nr, seed=self.seed)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True,
-                          worker_init_fn=lambda worker_id: np.random.seed(self.seed + worker_id), generator=torch.Generator().manual_seed(self.seed))
-
-    def meta_val_dataloader(self):
-        """Dataloader for the meta-validation step, providing complete data."""
-        return DataLoader(self.meta_val_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True,
                           worker_init_fn=lambda worker_id: np.random.seed(self.seed + worker_id), generator=torch.Generator().manual_seed(self.seed))
 
     def val_dataloader(self):

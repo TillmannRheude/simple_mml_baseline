@@ -1,21 +1,25 @@
 defaults:
   - _self_
   - modelname: transformer
-  - encoders: ch_sims
+  - encoders: ukb
+  - datamodule: default  # for ukb
 
-dataset: ch_sims  # mimic_symile / mimic_haim / mosi / mosei / ch_sims / ch_sims_v2 / vision_touch / crema_d / vgg_sound / kinetics_400 / kinetics_600 / kinetics_700
-split_nr: 1
+dataset: ukb  # mimic_symile / mimic_haim / mosi / mosei / ch_sims / ch_sims_v2 / crema_d / ukb
+
+unimodal: None  # unimodal_0  # unimodal_0, unimodal_1, unimodal_2, ...
+
+split_nr: 2
 missing:  # e.g. 2 modalities -> 1 list entry -> defines the percentage of one modality missing
   missing_train: [0.0, 0.0]
   missing_valid: [0.0, 0.0]
   missing_test: [0.0, 0.0]
 
-batch_size: 16
+batch_size: 256
 
 seed: 420
-num_workers: 8
+num_workers: 4
 precision: "32"
-max_epochs: 200
+max_epochs: 100
 wandb:
   project: "simple_mml_baseline"
   group: None

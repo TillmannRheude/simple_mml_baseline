@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
 from codefiles.datasets.ch_sims import CH_Sims, collate_fn
-from codefiles.datasets.ch_sims_v2 import CH_Sims_v2, collate_fn_v2
+from codefiles.datasets.ch_sims_v2 import CH_Sims_v2, collate_fn_v2_preprocessed
 
 
 class CH_Sims_Datamodule(pl.LightningDataModule):
@@ -28,7 +28,7 @@ class CH_Sims_Datamodule(pl.LightningDataModule):
         self.missing = missing
         self.v2 = v2
 
-        self.collate_fn = collate_fn_v2 if v2 else collate_fn
+        self.collate_fn = collate_fn_v2_preprocessed if v2 else collate_fn
 
     def setup(self, stage=None):
         if self.v2:
@@ -41,13 +41,10 @@ class CH_Sims_Datamodule(pl.LightningDataModule):
             self.test_dataset = CH_Sims(split="test", zero_fill_rates=self.missing["missing_test"], split_nr=self.split_nr, variant=self.variant, seed=self.seed)
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True, collate_fn=self.collate_fn)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, num_workers=self.num_workers, shuffle=True, collate_fn=self.collate_fn, pin_memory=True, persistent_workers=True)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False, collate_fn=self.collate_fn)
-    
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, drop_last=True, num_workers=self.num_workers, shuffle=False, collate_fn=self.collate_fn, pin_memory=True, persistent_workers=True)
+
     def test_dataloader(self,):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=False, collate_fn=self.collate_fn)
-
-
-
+        return DataLoader(self.test_dataset, batch_size=(self.batch_size//2), drop_last=True, num_workers=self.num_workers, shuffle=False, collate_fn=self.collate_fn, pin_memory=True, persistent_workers=True)

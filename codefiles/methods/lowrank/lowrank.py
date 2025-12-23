@@ -38,6 +38,11 @@ class Low_Rank_Matrix_Fusion_Transformer(nn.Module):
         self.fusion_weights = nn.Parameter(torch.empty(1, 1, self.rank, 1))
         self.fusion_bias = nn.Parameter(torch.empty(1, 1, self.d_model))
 
+        # Add LayerNorms for each modality before fusion
+        self.modality_layernorms = nn.ModuleList([
+            nn.LayerNorm(self.d_model) for _ in range(self.num_modalities)
+        ])
+
         self.linear_out = nn.Linear(d_model, dim_output)
 
         self.fusion_layernorm = nn.LayerNorm(d_model)
@@ -129,6 +134,11 @@ class Low_Rank_Matrix_Fusion_Transformer(nn.Module):
         
         split_size = x.shape[1] // self.num_modalities
         unimodal_features = list(torch.split(x, split_size, dim=1))
+
+        # Apply LayerNorm to each modality feature
+        unimodal_features = [
+            ln(feat) for ln, feat in zip(self.modality_layernorms, unimodal_features)
+        ]
 
         if src_mask is not None:
             unimodal_masks = list(torch.split(src_mask, split_size, dim=1))

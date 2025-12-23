@@ -4,8 +4,6 @@ import torch.nn.functional as F
 from torchmetrics.classification import MulticlassAccuracy, BinaryAccuracy, BinaryF1Score, MulticlassCalibrationError, MulticlassF1Score
 
 from codefiles.lightningmodules.utils import (
-    get_input,
-    get_target,
     LightningModuleParent
 )
 
@@ -30,36 +28,24 @@ class CH_Sims_Lightning_Module(LightningModuleParent):
         },
         params_arl: dict = {},
         params_dgl: dict = {},
-        params_mcr: dict = {},
         params_mmpareto: dict = {},
         params_bmml: dict = {},
         params_gblend: dict = {},
         params_pdf: dict = {},
-        params_pmr: dict = {},
         params_omib: dict = {},
-        params_smil: dict = {},
-        params_mixup: dict = {},
-        params_avmc: dict = {},
-        params_ebr: dict = {},
-        params_simmlm: dict = {},
+        params_aug: dict = {},
     ) -> None: 
         super().__init__(
             manual_opt=manual_opt, 
             params_ogm=params_ogm, 
             params_arl=params_arl, 
             params_dgl=params_dgl, 
-            params_mcr=params_mcr, 
             params_mmpareto=params_mmpareto, 
             params_bmml=params_bmml, 
             params_gblend=params_gblend, 
             params_pdf=params_pdf,
-            params_pmr=params_pmr,
             params_omib=params_omib,
-            params_smil=params_smil,
-            params_mixup=params_mixup,
-            params_avmc=params_avmc,
-            params_ebr=params_ebr,
-            params_simmlm=params_simmlm,
+            params_aug=params_aug,
         )
         
         self.model = model
@@ -75,15 +61,14 @@ class CH_Sims_Lightning_Module(LightningModuleParent):
         self.acc_5_val = MulticlassAccuracy(num_classes=5)
         self.acc_5_test = MulticlassAccuracy(num_classes=5)
 
-        self.f1_train = MulticlassF1Score(num_classes=5)  # BinaryF1Score()
-        self.f1_val = MulticlassF1Score(num_classes=5)  # BinaryF1Score()
-        self.f1_test = MulticlassF1Score(num_classes=5)  # BinaryF1Score()
+        self.f1_train = MulticlassF1Score(num_classes=5)
+        self.f1_val = MulticlassF1Score(num_classes=5)
+        self.f1_test = MulticlassF1Score(num_classes=5)
 
         self.all_val_2_accs = []
         self.all_val_f1s = []
         self.all_val_5_accs = []
 
-        # not needed here but for reference
         self.five_classmapping = {
             -1.0: 0, -0.8: 0,
             -0.6: 1, -0.4: 1, -0.2: 1,

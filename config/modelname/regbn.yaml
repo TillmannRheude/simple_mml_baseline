@@ -19,7 +19,7 @@ head_transformer:
   dropout: 0.2
 
 rbn:
-  reference_modality_idx: 0  # modality which is the primary source of confounding information that you want to remove from the other modalities (f)
+  reference_modality_idx: 1  # modality which is the primary source of confounding information that you want to remove from the other modalities (f)
   momentum: 0.01
   sigma_THR: 0.3
   sigma_MIN: 0.1

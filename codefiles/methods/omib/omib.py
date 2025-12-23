@@ -275,7 +275,6 @@ class Optimal_Multimodal_Information_Bottleneck_Transformer(nn.Module):
         for i in range(1, self.num_modalities):
             # The paper's formula r = 1-tanh(log(KL2/KL1)) is proportional to KL1/KL2.
             # Our ratio is KL_i / KL_0, so r_i will be proportional to KL_0/KL_i.
-            # This correctly assigns a lower regularization weight to modalities with more remaining info (higher KL).
             ratio = kls_y_hat[i] / (kls_y_hat[0] + 1e-8)
             r = 1.0 - torch.tanh(torch.log(ratio + 1e-8))
             rs.append(r)
@@ -287,12 +286,10 @@ class Optimal_Multimodal_Information_Bottleneck_Transformer(nn.Module):
         # TRB Losses (calculated after main trb_logits are available)
         trb_losses = [self.task_loss_fn(logits, y) for logits in trb_logits]
         
-        # This dictionary contains only the components to be added to the main task loss in the trainer
         for i, curr_trb_loss in enumerate(trb_losses):
             losses[f"loss_trb_{i}"] = curr_trb_loss
         losses["regularization_omf"] = self.beta * weighted_kl_loss
         
-        # This dictionary contains all other values for logging and monitoring
         metrics_to_log["loss_omf_y"] = self.task_loss_fn(main_logits, y)
         for i, curr_kl_loss in enumerate(kl_losses_omf):
             metrics_to_log[f"unweighted_kl_loss_{i}"] = curr_kl_loss

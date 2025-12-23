@@ -28,7 +28,7 @@ class MOSI_MOSEI(Dataset):
 
         with open(self.datadir, 'rb') as f:
             self.dataset = pickle.load(f)
-        #self.dataset = pd.read_pickle(self.datadir)
+
         if dataset == "mosi":
             self.dataset = self.dataset[split]
         elif dataset == "mosei":
