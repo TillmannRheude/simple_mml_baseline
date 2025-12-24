@@ -22,7 +22,8 @@ class MOSI_MOSEI(Dataset):
         self.variant = variant
 
         if dataset == "mosi":
-            self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/data/MOSI/aligned_50_testsplits_split_{split_nr}.pkl"
+            #self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/data/MOSI/aligned_50_testsplits_split_{split_nr}.pkl"
+            self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/archiv/file.pkl"
         elif dataset == "mosei":
             self.datadir = f"/sc-projects/sc-proj-ukb-cvd/projects/data/MOSEI/aligned_50_testsplits_split_{split_nr}.pkl"
 
