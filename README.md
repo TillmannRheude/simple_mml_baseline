@@ -14,7 +14,7 @@ Deep learning architectures for multimodal learning have seen a rapid increase i
 - Use `main.ipynb` for quick experimentation and debugging; use `main.py` for full-scale training and evaluation runs.
 
 #### Running a Method on MOSI
-To get started quickly, you can download the MOSI dataset as described in the [IMDer repository](https://github.com/mdswyz/IMDer?tab=readme-ov-file). This dataset is compatible with our MOSI dataloader.
+To get started quickly, you can download the MOSI dataset (which originates from the [IMDer repository](https://github.com/mdswyz/IMDer?tab=readme-ov-file)) as described in the following. This dataset is compatible with our MOSI dataloader.
 First, install the required `gdown` package:
 ```bash
 pip install gdown
