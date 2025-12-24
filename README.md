@@ -26,7 +26,9 @@ url = 'https://drive.google.com/uc?id=1VqjkYqcgUlggZVN7B3NpXwQ-BIWIXxkj'
 output = 'file.pkl'
 gdown.download(url, output, quiet=False)
 ```
-Place `file.pkl` in the appropriate data directory for your experiments and change the path in the MOSI dataset class accordingly (`codefiles/datasets/mosi_mosei.py`). Change the `dataset`, `encoders` and `modelname` in `config/config.yaml`. Next, configure your experiment settings in `config/config.yaml` by setting the `dataset`, `encoders`, and `modelname` fields as desired. Weights & Biases (WandB) logging is enabled by default and can be managed via the `wandb` section in the config file. If you prefer to disable WandB, you can comment out the related lines in `main.py` or `main.ipynb`.
+Place `file.pkl` in the appropriate data directory for your experiments and change the path in the MOSI dataset class accordingly (`codefiles/datasets/mosi_mosei.py`). Next, configure your experiment settings in `config/config.yaml` by setting the `dataset`, `encoders`, and `modelname` fields as desired. 
+
+Note: Weights & Biases (WandB) logging is enabled by default and can be managed via the `wandb` section in the config file. If you prefer to disable WandB, you can comment out the related lines in `main.py` or `main.ipynb`.
 
 ## Add further datasets, methods, ...
 TODO 
