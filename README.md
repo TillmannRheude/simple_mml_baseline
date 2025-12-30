@@ -2,8 +2,9 @@
 
 ## Abstract
 <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="40%" align="right" />
-
+<div align="justify">
 Deep learning architectures for multimodal learning have seen a rapid increase in complexity, driven by the assumption that sophisticated multimodal-specific methods are required to improve performance. We challenge this assumption through a large-scale empirical study reimplementing 19 high-impact methods under standardized conditions, evaluating them across nine diverse datasets with up to 23 modalities, and testing their generalizability to new tasks beyond their original scope, including settings with missing modalities. We propose a Simple Baseline for Multimodal Learning (SimBaMM), a straightforward late-fusion Transformer architecture, and demonstrate that under standardized experimental conditions with rigorous hyperparameter tuning of all methods, more complex architectures do not reliably outperform SimBaMM. Statistical analysis confirms that more complex methods are at best practically equivalent to SimBaMM, and often fail to reliably outperform well-tuned unimodal baselines, particularly in the small data regime where many methods were originally, and often exclusively, evaluated. To strengthen our findings, we include a case study of a recent multimodal learning method highlighting the methodological shortcomings in the literature. To support comparable, robust, and trustworthy future results, we provide a pragmatic reliability checklist. In summary, we argue for a shift in focus: away from the pursuit of architectural novelty and toward methodological rigor.
+</div>
 
 ## Get Started
 #### Overview:
