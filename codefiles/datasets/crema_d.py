@@ -99,7 +99,7 @@ class CREMAD(Dataset):
         audio_spectrogram = data["audio_spectrogram"][None, ...]  # (1, 257, 299)
         
         if "unimodal" not in self.variant:
-            video = apply_missing_mask(video, self.zero_fill_masks[idx, 0])
+            final_images = apply_missing_mask(final_images, self.zero_fill_masks[idx, 0])
             audio_spectrogram = apply_missing_mask(audio_spectrogram, self.zero_fill_masks[idx, 1])
 
         return {

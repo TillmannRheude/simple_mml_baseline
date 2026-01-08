@@ -86,6 +86,14 @@ class CREMAD_Lightning_Module(LightningModuleParent):
             for i, unimodal_acc in enumerate(self.unimodal_accs):
                 self.unimodal_accs[i].to(self.device)
                 self.unimodal_accs[i].update(unimodal_accs[:, i, :], y)
+        
+
+        if isinstance(self.model.transformer, AUG_Transformer):
+            x, y = get_input(self.dataset, batch), get_target(self.dataset, batch)
+            unimodal_logits = self.model(x, y)["unimodal_logits"]
+            for i in range(2):
+                self.unimodal_accs[i].to(self.device)
+                self.unimodal_accs[i].update(unimodal_logits[i], y)
 
         return shared_dict["loss"]
     
@@ -128,6 +136,11 @@ class CREMAD_Lightning_Module(LightningModuleParent):
         if isinstance(self.model.transformer, Multimodal_Transformer):
             for i, unimodal_acc in enumerate(self.unimodal_accs):
                 self.log(f"val/acc_unimodal_{i}", unimodal_acc.compute(), sync_dist=False)
+                self.unimodal_accs[i].reset()
+
+        if isinstance(self.model.transformer, AUG_Transformer):
+            for i in range(2):
+                self.log(f"val/acc_unimodal_{i}", self.unimodal_accs[i].compute(), sync_dist=True)
                 self.unimodal_accs[i].reset()
 
     def on_test_epoch_end(self):

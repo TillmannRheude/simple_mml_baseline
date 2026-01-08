@@ -33,18 +33,3 @@ Note: Weights & Biases (WandB) logging is enabled by default and can be managed 
 
 ## Add further datasets, methods, ...
 TODO 
-
-## Citation
-In case you find our work helpful, we're happy if you cite us as following
-```bibtex
-@unpublished{Rheude_Eils_Wild_2025, 
-  title={Fusion or Confusion? Multimodal Complexity Is Not All You Need}, 
-  url={http://arxiv.org/abs/2512.22991}, 
-  DOI={10.48550/arXiv.2512.22991}, 
-  note={arXiv:2512.22991 [cs]}, 
-  number={arXiv:2512.22991}, 
-  publisher={arXiv}, 
-  author={Rheude, Tillmann and Eils, Roland and Wild, Benjamin}, 
-  year={2025}, 
-  month=dec
-}
