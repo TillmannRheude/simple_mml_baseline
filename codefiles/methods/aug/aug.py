@@ -88,24 +88,29 @@ class AUG_Transformer(nn.Module):
         self.apply(self._init_weights)
 
         # Transformer Head 
-        self.transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(
-                d_model=d_model, 
-                nhead=nhead, 
-                dim_feedforward=dim_feedforward, 
-                dropout=dropout,
-                batch_first=True,
-                norm_first=True,
-            ),
-            num_layers=num_layers
-        )
+        #self.transformer = nn.TransformerEncoder(
+        #    nn.TransformerEncoderLayer(
+        #        d_model=d_model, 
+        #        nhead=nhead, 
+        #        dim_feedforward=dim_feedforward, 
+        #        dropout=dropout,
+        #        batch_first=True,
+        #        norm_first=True,
+        #    ),
+        #    num_layers=num_layers
+        #)
+        #self.transformer_cls = nn.ModuleList([
+        #    AddCLSToken(d_model),
+        #    AddPE(d_model),
+        #    self.transformer,
+        #    ExtractCLSToken(),
+        #    self.linear_out,
+        #])
+
+        # only Linear layer instead of transformer
         self.transformer_cls = nn.ModuleList([
-            AddCLSToken(d_model),
-            AddPE(d_model),
-            self.transformer,
-            ExtractCLSToken(),
             self.linear_out,
-            # SqueezeLayer()
+            SqueezeLayer()
         ])
 
     def set_opt(self, opt: torch.optim.Optimizer):

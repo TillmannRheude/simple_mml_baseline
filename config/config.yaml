@@ -10,11 +10,11 @@ unimodal: None  # unimodal_0  # unimodal_0, unimodal_1, unimodal_2, ...
 
 split_nr: 2
 missing:  # e.g. 2 modalities -> 1 list entry -> defines the percentage of one modality missing
-  missing_train: [0.0, 0.0]
-  missing_valid: [0.0, 0.0]
-  missing_test: [0.0, 0.0]
+  missing_train: [0.0]
+  missing_valid: [0.0]
+  missing_test: [0.0]
 
-batch_size: 256
+batch_size: 128
 
 seed: 420
 num_workers: 4
