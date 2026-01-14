@@ -1,5 +1,6 @@
 # Fusion or Confusion?
 
+[![arXiv](https://img.shields.io/badge/arXiv-2512.22991-b31b1b.svg)](https://arxiv.org/pdf/2512.22991)
 
 ## Abstract
 <img src="./figures/SimBaMM_pumba.png" alt="SimBaMM pumba" width="40%" align="right" />
