@@ -768,7 +768,7 @@ class Encoder_CHS_Vision(Parent_Encoder):
             def __init__(self, full_seq: bool = False):
                 super().__init__()
                 self.full_seq = full_seq
-                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache/"
+                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"
                 config = VivitConfig(
                     num_frames=32,
                     image_size=224,
@@ -812,7 +812,7 @@ class Encoder_CHS_Audio(Parent_Encoder):
             def __init__(self, full_seq: bool = False):
                 super().__init__()
                 self.full_seq = full_seq
-                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"  # "/sc-projects/sc-proj-dh-ag-eils-ml/shared_hf_cache"
+                cache_dir = "/sc-projects/sc-proj-ukb-cvd/projects/data/tmp_hf_cache"
                 config = Wav2Vec2Config(
                     hidden_size=latent_dim,
                     num_hidden_layers=params["num_hidden_layers"],
