@@ -37,12 +37,12 @@ def main(cfg) -> None:
         checkpointaddon = f"{cfg.unimodal}"
 
     checkpoint_name = f"{cfg.modelname.modelname}_{cfg.dataset}_{cfg.split_nr}{checkpointaddon}"
-    if os.path.exists(f'/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/checkpoints/{checkpoint_name}.ckpt'):
-        os.remove(f'/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/checkpoints/{checkpoint_name}.ckpt')
+    if os.path.exists(f'/path/to/checkpoints/{checkpoint_name}.ckpt'):
+        os.remove(f'/path/to/checkpoints/{checkpoint_name}.ckpt')
 
     checkpoint_callback = ModelCheckpoint(
         monitor=cfg.encoders.monitor.metric, mode=cfg.encoders.monitor.mode,
-        dirpath='/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/checkpoints/',
+        dirpath='/path/to/checkpoints/',
         filename=checkpoint_name,
         save_top_k=1,
     )
@@ -70,7 +70,7 @@ def main(cfg) -> None:
 
     model_test = build_model(cfg)
     lightningmodule_test = build_lightningmodule(cfg, model_test)
-    trainer.test(lightningmodule_test, datamodule=datamodule, ckpt_path="best")  # ckpt_path=f'/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/checkpoints/{checkpoint_name}.ckpt'
+    trainer.test(lightningmodule_test, datamodule=datamodule, ckpt_path="best")  # ckpt_path=f'/path/to/checkpoints/{checkpoint_name}.ckpt'
     wandb.finish()
 
 

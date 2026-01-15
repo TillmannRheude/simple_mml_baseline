@@ -32,20 +32,20 @@ class CREMAD_Datamodule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         if self.use_embeddings:
-            self.train_dataset = CREMAD_Embeddings(split="train", zero_fill_rates=self.missing["missing_train"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/embeddings")
-            self.val_dataset = CREMAD_Embeddings(split="val", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/embeddings")
-            self.test_dataset = CREMAD_Embeddings(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/embeddings")
+            self.train_dataset = CREMAD_Embeddings(split="train", zero_fill_rates=self.missing["missing_train"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/path/to/data/crema-d-mirror/embeddings")
+            self.val_dataset = CREMAD_Embeddings(split="val", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/path/to/data/crema-d-mirror/embeddings")
+            self.test_dataset = CREMAD_Embeddings(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv", preproc_root_embeddings="/path/to/data/crema-d-mirror/embeddings")
         else:
             if self.corrupted_data_protocol:
                 # Leakage between train/test and no validation set 
-                self.train_dataset = CREMAD(split="train", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits_aug.csv")
-                self.val_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits_aug.csv")
-                self.test_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits_aug.csv")
+                self.train_dataset = CREMAD(split="train", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits_aug.csv")
+                self.val_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits_aug.csv")
+                self.test_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits_aug.csv")
             else:
                 # No leakage between and existing train/val/test
-                self.train_dataset = CREMAD(split="train", zero_fill_rates=self.missing["missing_train"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv")
-                self.val_dataset = CREMAD(split="val", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv")
-                self.test_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv")
+                self.train_dataset = CREMAD(split="train", zero_fill_rates=self.missing["missing_train"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv")
+                self.val_dataset = CREMAD(split="val", zero_fill_rates=self.missing["missing_valid"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv")
+                self.test_dataset = CREMAD(split="test", zero_fill_rates=self.missing["missing_test"], variant=self.variant, split_nr=self.split_nr, seed=self.seed, csv_splits="/path/to/data/crema-d-mirror/splits.csv")
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, drop_last=True, pin_memory=True, persistent_workers=True, num_workers=self.num_workers, shuffle=True, worker_init_fn=lambda worker_id: np.random.seed(self.seed + worker_id), generator=torch.Generator().manual_seed(self.seed))

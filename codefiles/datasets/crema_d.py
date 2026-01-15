@@ -23,8 +23,8 @@ class CREMAD(Dataset):
         variant: str = "unimodal_1",
         zero_fill_rates: List[float] = [0.0],
         seed: int = 42,
-        preproc_root: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/preprocessed_aug",
-        csv_splits: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv",  # _aug
+        preproc_root: str = "/path/to/data/crema-d-mirror/preprocessed_aug",
+        csv_splits: str = "/path/to/data/crema-d-mirror/splits.csv",  # _aug
     ) -> None:
         super().__init__()
 
@@ -118,8 +118,8 @@ class CREMAD_Embeddings(Dataset):
         variant: str = "unimodal_1",
         zero_fill_rates: List[float] = [0.0],
         seed: int = 42,
-        csv_splits: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv",
-        preproc_root_embeddings: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/embeddings",
+        csv_splits: str = "/path/to/data/crema-d-mirror/splits.csv",
+        preproc_root_embeddings: str = "/path/to/data/crema-d-mirror/embeddings",
     ) -> None:
         super().__init__()
 
@@ -191,12 +191,12 @@ class CREMAD_raw(Dataset):
         self.num_modalities = 2
         self.variant = variant
 
-        self.cremad_dataset_full = pd.read_csv(f"/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/splits.csv")
+        self.cremad_dataset_full = pd.read_csv(f"/path/to/data/crema-d-mirror/splits.csv")
         self.cremad_dataset = self.cremad_dataset_full[self.cremad_dataset_full[f"split_{split_nr}"] == split]
         self.cremad_dataset.reset_index(drop=True, inplace=True)
 
-        self.path_videos = f"/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/VideoFlash"
-        self.path_audios = f"/sc-projects/sc-proj-ukb-cvd/projects/data/crema-d-mirror/AudioWAV" 
+        self.path_videos = f"/path/to/data/crema-d-mirror/VideoFlash"
+        self.path_audios = f"/path/to/data/crema-d-mirror/AudioWAV" 
 
         self.target_dict_24 = { 
             "ANG_LO": 0,
