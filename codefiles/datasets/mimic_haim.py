@@ -11,7 +11,7 @@ from codefiles.datasets.utils import create_missing_data_masks, apply_missing_ma
 class MIMIC_Haim(Dataset):
     def __init__(
         self, 
-        dataset_path: str = "/sc-resources/dh-mimic/mimic_haim/haim_img_report_lab_target_split.csv",
+        dataset_path: str = "/path/to/data/mimic_haim/haim_img_report_lab_target_split.csv",
         split: str = "train",
         split_nr: int = 1, 
         variant: str = "unimodal_1",
@@ -23,8 +23,8 @@ class MIMIC_Haim(Dataset):
         self.num_modalities = 2
         self.variant = variant
 
-        self.root_img = "/sc-resources/dh-mimic/mimic_cxr_jpg"
-        self.root_lab = "/sc-resources/dh-mimic/mimic_haim"
+        self.root_img = "/path/to/data/mimic_cxr_jpg"
+        self.root_lab = "/path/to/data/mimic_haim"
 
         self.lab_labels = ["Glucose", "Potassium", "Sodium", "Chloride", "Creatinine", 
                             "Urea Nitrogen", "Bicarbonate", "Anion Gap", "Hemoglobin", 

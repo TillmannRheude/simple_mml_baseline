@@ -11,7 +11,7 @@ from codefiles.datasets.utils import create_missing_data_masks, apply_missing_ma
 class INSPECT(Dataset):
     def __init__(
         self, 
-        dataset_path: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/inspect/",
+        dataset_path: str = "/path/to/data/inspect/",
         split: str = "train",
         split_nr: int = 1, 
         variant: str = "unimodal_1",
@@ -27,7 +27,7 @@ class INSPECT(Dataset):
         self.raw_vision = raw_vision
         self.use_preprocessed = use_preprocessed
 
-        splits_df = pd.read_pickle(f"/sc-projects/sc-proj-ukb-cvd/projects/data/inspect/cv_splits.pkl")
+        splits_df = pd.read_pickle(f"/path/to/data/inspect/cv_splits.pkl")
         splits_df = splits_df[splits_df[f"split_{split_nr}"] == split]
 
         self.targets_df = pd.read_pickle(dataset_path + "PE_targets.pkl")

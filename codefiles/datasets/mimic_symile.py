@@ -11,7 +11,7 @@ from codefiles.datasets.utils import create_missing_data_masks, apply_missing_ma
 
 class MIMIC_Symile(Dataset):
     def __init__(self, 
-        dataset_path: str = "/sc-resources/dh-mimic/mimic_symile/mimic_symile/",
+        dataset_path: str = "/path/to/data/mimic_symile/",
         split: str = "train",
         split_nr: int = 1,
         variant: str = "unimodal_1",

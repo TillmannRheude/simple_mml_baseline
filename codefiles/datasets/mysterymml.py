@@ -18,7 +18,7 @@ class MysteryMML(Dataset):
         self.num_modalities = 2
         self.variant = variant
 
-        self.datadir = f"/sc-projects/sc-proj-ukb-cvd/data/mystery_mml_dataset/multimodal_dataset.npz"
+        self.datadir = f"/path/to/data/mystery_mml_dataset/multimodal_dataset.npz"
         self.dataset = np.load(self.datadir)
         self.dataset = {k: torch.tensor(v) for k, v in self.dataset.items()}
 

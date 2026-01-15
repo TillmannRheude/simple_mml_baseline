@@ -12,7 +12,7 @@ from codefiles.datasets.utils import create_missing_data_masks, apply_missing_ma
 class CH_Sims(Dataset):
     def __init__(
         self,
-        dataset_path: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/CHSIMS",
+        dataset_path: str = "/path/to/data/CHSIMS",
         split: str = "train",
         split_nr: int = 1,
         variant: str = "unimodal_1",
@@ -206,7 +206,7 @@ def collate_fn(batch):
 class CH_Sims_old(Dataset):
     def __init__(
         self,
-        dataset_path: str = "/sc-projects/sc-proj-ukb-cvd/projects/data/CHSIMS", 
+        dataset_path: str = "/path/to/data/CHSIMS", 
         split: str = "train",
         split_nr: int = 1, 
         variant: str = "unimodal_1",
