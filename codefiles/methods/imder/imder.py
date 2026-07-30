@@ -4,8 +4,7 @@ import torch.nn as nn
 from codefiles.encoders import AddCLSToken, ExtractCLSToken, AddPE
 from codefiles.methods.imder.dit import Diffusion_Transformer
 from codefiles.methods.imder.diffusion import GaussianDiffusion1D
-
-from codefiles.methods.imder.dit import Diffusion_Transformer
+from codefiles.methods.imder.unet import Diffusion_UNet
 
 
 class IMDer(nn.Module):
@@ -34,12 +33,14 @@ class IMDer(nn.Module):
         },
         params_imder: dict = {
             "beta": 0.1,
+            "score_model": "dit",  # dit / unet
         }
     ) -> None:
         super().__init__()
         self.si = params_ddpm["sampling_iter"]
         self.n_modalities = params_ddpm["n_modalities"]
         self.beta = params_imder["beta"]
+        self.score_model = params_imder.get("score_model", "dit").lower()
 
         # Conditioning Fusion
         self.condition_fusion = nn.Conv1d(
@@ -107,8 +108,15 @@ class IMDer(nn.Module):
                 torch.nn.init.zeros_(m.bias)
     
     def _init_scoremodels(self, params_ddpm: dict = {}):
+        scoremodel_cls = {
+            "dit": Diffusion_Transformer,
+            "unet": Diffusion_UNet,
+        }.get(self.score_model)
+        if scoremodel_cls is None:
+            raise ValueError(f"Unknown IMDer score model '{self.score_model}'. Expected 'dit' or 'unet'.")
+
         scoremodels = nn.ModuleList([
-            Diffusion_Transformer(
+            scoremodel_cls(
                 input_dim=params_ddpm["d_model"],
                 output_dim=params_ddpm["d_model"],
                 hidden_dim=params_ddpm["hidden_dim"],

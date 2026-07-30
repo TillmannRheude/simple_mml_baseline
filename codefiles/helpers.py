@@ -91,6 +91,8 @@ def get_num_modalities(cfg: dict = {}) -> int:
     elif cfg.dataset == "inspect":
         return 2
     elif cfg.dataset == "ukb":
+        if "datamodule" in cfg and "plugins" in cfg.datamodule:
+            return len([mod for mod in cfg.datamodule.plugins.keys() if mod != "labels"])
         return 23
     elif cfg.dataset == "mystery_mml":
         return 2
@@ -378,8 +380,6 @@ def build_model(
             "telomeres": 4,
             "infectiousdiseases": 66,
         }
-        n_modalities = len(input_dims_modalities)
-
         encoders = nn.ModuleList([])
 
         for mod in input_dims_modalities.keys():
@@ -396,6 +396,7 @@ def build_model(
                         }
                     )
                 )
+        n_modalities = len(encoders)
         encoders = Encoders(encoders=encoders)
     elif cfg.dataset == "mystery_mml":
         output_dim = 1
@@ -448,6 +449,7 @@ def build_model(
             },
             params_imder={
                 "beta": cfg.modelname.imder.beta,
+                "score_model": getattr(cfg.modelname.imder, "score_model", "dit"),
             }
         )
     elif cfg.modelname.modelname == "mult":

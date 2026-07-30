@@ -4,6 +4,7 @@ import torch
 import os 
 import hydra 
 import pytorch_lightning as pl
+from hydra.core.hydra_config import HydraConfig
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -35,6 +36,10 @@ def main(cfg) -> None:
             checkpointaddon = "_clean"
     if "unimodal" in cfg.unimodal:
         checkpointaddon = f"{cfg.unimodal}"
+
+    modality_config = HydraConfig.get().runtime.choices.get("datamodule/plugins")
+    if modality_config in {"m8", "m16"}:
+        checkpointaddon += f"_{modality_config}"
 
     checkpoint_name = f"{cfg.modelname.modelname}_{cfg.dataset}_{cfg.split_nr}{checkpointaddon}"
     if os.path.exists(f'/sc-projects/sc-proj-ukb-cvd/projects/simple_mml_baseline_tr/checkpoints/{checkpoint_name}.ckpt'):

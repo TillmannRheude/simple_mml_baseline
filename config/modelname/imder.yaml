@@ -30,3 +30,4 @@ ddpms:
 
 imder: 
   beta: 0.1  # imputation loss weight
+  score_model: dit  # dit / unet
