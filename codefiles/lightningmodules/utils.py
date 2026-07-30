@@ -114,6 +114,8 @@ class LightningModuleParent(pl.LightningModule):
             self.gblend_val_losses_uni = nn.ModuleList([MeanMetric() for _ in range(num_modalities)])
 
     def on_train_epoch_start(self):
+        self.optimizers().train() if "schedulefree" in self.params_optimizer["name"] else None
+
         if self.current_epoch == 0 and self.trainer.is_global_zero:
             self.epoch_start_time = time.time()
 
@@ -626,9 +628,6 @@ class LightningModuleParent(pl.LightningModule):
         }
 
     def on_train_start(self):
-        self.optimizers().train() if "schedulefree" in self.params_optimizer["name"] else None
-        
-    def on_train_epoch_start(self):
         self.optimizers().train() if "schedulefree" in self.params_optimizer["name"] else None
         
     def on_validation_start(self):

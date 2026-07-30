@@ -1,0 +1,18 @@
+defaults:
+ - prs: modality_prs  # PRS, 135
+ - localenvironment: modality_localenvironment  # Local environment, 33
+ - ecgduringexercise: modality_ecgduringexercise  # ECG, 355
+ - spirometry: modality_spirometry  # Spirometry, 29
+ - bonedensitometry: modality_bonedensitometry  # Bone densitometry, 27
+ - cognitivefunction: modality_cognitivefunction  # Cognitive function, 27
+ - eyemeasures: modality_eyemeasures  # Eye measures, 310
+ - urineassays: modality_urineassays  # Urine assays, 4
+ - nmr: modality_nmr  # Metabolomics, 249
+ - bloodpressure: modality_bloodpressure  # Blood pressure, 12
+ - anthropometry: modality_anthropometry  # Anthropometry, 43
+ - hearingtest: modality_hearingtest  # Hearing, 68
+ - verbalinterview: modality_verbalinterview  # Interview, 224
+ - bloodcount: modality_bloodcount  # Blood count, 31
+ - telomeres: modality_telomeres  # Telomeres, 4
+ - infectiousdiseases: modality_infectiousdiseases  # Infectious diseases, 66
+ - labels: mortality  # 1
