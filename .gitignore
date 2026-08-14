@@ -1,41 +1,29 @@
-archiv
-.vscode
-__MACOSX
-checkpoints
-local_codebases
-data
-simple_mml_baseline
-wandb
-sweep_yamls/outputs
-sweep_yamls/wandb
-outputs
-visualization_scripts
-udm
-sweep_yamls
-test_runs
-test_runs_missingness
-unimodal_sweep_yamls
-unimodal_test_runs
-codefiles/datasets/kinetics
-codefiles/datasets/synthetic
-codefiles/datasets/mysterymml
-codefiles/datasets/vision_touch
-codefiles/datasets/vgg_sound
-codefiles/lightningdatamodules/kinetics
-codefiles/lightningdatamodules/synthetic
-codefiles/lightningdatamodules/mysterymml
-codefiles/lightningdatamodules/vision_touch
-codefiles/lightningdatamodules/vgg_sound
-codefiles/lightningmodules/kinetics
-codefiles/lightningmodules/synthetic
-codefiles/lightningmodules/mysterymml
-codefiles/lightningmodules/vision_touch
-codefiles/lightningmodules/vgg_sound
-debug
-debug2
-wandb_csvs
-# Python bytecode
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
+.pytest_cache/
+
+# Local tooling
+.vscode/
+.ipynb_checkpoints/
+
+# Training artifacts
+checkpoints/
+outputs/
+wandb/
+*.ckpt
+*.out
+
+# Legacy local artifacts from the full benchmark checkout. They are not part of
+# this branch, but remain ignored so switching branches does not delete them.
+__MACOSX/
+archiv/
+local_codebases/
+sweep_yamls/
+test_runs/
+test_runs_missingness/
 ukb_audit_reports/
+unimodal_sweep_yamls/
+unimodal_test_runs/
+visualization_scripts/
+wandb_csvs/

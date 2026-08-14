@@ -1,28 +1,14 @@
-modelname: transformer
-
-
-optimizer:
-  name: schedulefree_adamw
-  lr: 1e-3  # 0.00032346900837059805  # 1e-3
-  warmup_steps: 200
-  weight_decay: 0.01
-  eps: 1e-7
-  betas: [0.95, 0.99]
-
-pipeline:
-  full_seq: False
-
-corrupted_data_protocol: False
-
-# Crema D
-# modelname_head_transformer_d_model=512
-# modelname_head_transformer_dim_feedforward=256
-# modelname_head_transformer_dropout=0.2
-# modelname_head_transformer_nhead=8
-# modelname_head_transformer_num_layers=4
-head_transformer:
+transformer:
   d_model: 512
   num_layers: 4
   dim_feedforward: 256
   nhead: 8
   dropout: 0.2
+
+optimizer:
+  name: schedulefree_adamw
+  lr: 1.0e-3
+  warmup_steps: 200
+  weight_decay: 0.01
+  eps: 1.0e-7
+  betas: [0.95, 0.99]

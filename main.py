@@ -1,52 +1,69 @@
-import signal
-import wandb
-import torch
-import os 
-import hydra 
+"""Train and evaluate SimBaMM on the configured UK Biobank cohort."""
+
+from __future__ import annotations
+
+import os
+
+import hydra
 import pytorch_lightning as pl
+import torch
+import wandb
+from omegaconf import DictConfig, OmegaConf
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-from codefiles.helpers import set_all_seeds, build_model, build_lightningmodule, build_datamodule
+from codefiles.helpers import (
+    build_datamodule,
+    build_lightning_module,
+    build_model,
+    set_all_seeds,
+)
 
-os.environ["WANDB_SILENT"] = "true"
+os.environ.setdefault("WANDB_SILENT", "true")
 torch.set_float32_matmul_precision("high")
 
-@hydra.main(config_path="config", config_name="config")
-def main(cfg) -> None:
-    wandb.finish()
-    set_all_seeds(seed=cfg.seed)
-    wandb.init(
+
+@hydra.main(version_base=None, config_path="config", config_name="config")
+def main(cfg: DictConfig) -> None:
+    set_all_seeds(cfg.seed)
+
+    logger = WandbLogger(
         project=cfg.wandb.project,
-        group=None if cfg.wandb.group == "None" else cfg.wandb.group,
-        config={key: value for key, value in cfg.items()},
+        group=None if cfg.wandb.group is None else cfg.wandb.group,
+        mode=cfg.wandb.mode,
+        save_dir=cfg.wandb.save_dir,
+    )
+    logger.experiment.config.update(
+        OmegaConf.to_container(cfg, resolve=True), allow_val_change=True
     )
 
-    model = build_model(cfg)
-    lightningmodule = build_lightningmodule(cfg, model)
     datamodule = build_datamodule(cfg)
-
-    if "early_stopping" in cfg.modelname:
-        early_stopping = EarlyStopping(monitor=cfg.encoders.monitor.metric, mode=cfg.encoders.monitor.mode, patience=cfg.max_epochs)
-        print("Early stopping is disabled")
-    else:
-        early_stopping = EarlyStopping(monitor=cfg.encoders.monitor.metric, mode=cfg.encoders.monitor.mode, patience=5)
-
-
+    lightning_module = build_lightning_module(cfg, build_model(cfg))
+    checkpoint = ModelCheckpoint(
+        monitor="val/auroc",
+        mode="max",
+        save_top_k=1,
+        filename="simbamm-ukb-{epoch:02d}",
+    )
     trainer = pl.Trainer(
-        logger=WandbLogger(project=cfg.wandb.project, dir="wandb/"),
-        log_every_n_steps=1,
-        accelerator='gpu',
-        devices=1,
-        max_epochs=cfg.max_epochs,
-        precision=cfg.precision,
-        enable_checkpointing=False,
+        logger=logger,
+        accelerator=cfg.trainer.accelerator,
+        devices=cfg.trainer.devices,
+        max_epochs=cfg.trainer.max_epochs,
+        precision=cfg.trainer.precision,
+        log_every_n_steps=cfg.trainer.log_every_n_steps,
         callbacks=[
-            early_stopping,
+            EarlyStopping(
+                monitor="val/auroc",
+                mode="max",
+                patience=cfg.trainer.early_stopping_patience,
+            ),
+            checkpoint,
         ],
     )
-    trainer.fit(lightningmodule, datamodule)
-    #trainer.test(ckpt_path="best", datamodule=datamodule)
+    trainer.fit(lightning_module, datamodule=datamodule)
+    if cfg.trainer.test_after_fit:
+        trainer.test(lightning_module, datamodule=datamodule, ckpt_path="best")
     wandb.finish()
 
 
