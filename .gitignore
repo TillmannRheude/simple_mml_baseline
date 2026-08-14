@@ -38,3 +38,4 @@ wandb_csvs
 __pycache__/
 *.py[cod]
 *$py.class
+ukb_audit_reports/
