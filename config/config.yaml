@@ -1,25 +1,22 @@
 defaults:
+  - modelname@model: transformer
+  - encoders@encoder: ukb
+  - datamodule@data: default
   - _self_
-  - modelname: imder
-  - encoders: mimic_symile  # mimic_symile / mimic_haim / mosi / mosei / ch_sims / ch_sims_v2 / crema_d / ukb
-  - datamodule: default  # for ukb
-
-dataset: mimic_symile  # mimic_symile / mimic_haim / mosi / mosei / ch_sims / ch_sims_v2 / crema_d / ukb
-
-unimodal: None  # unimodal_0  # unimodal_0, unimodal_1, unimodal_2, ...
-
-split_nr: 2
-missing:  # e.g. 2 modalities -> 1 list entry -> defines the percentage of one modality missing
-  missing_train: [0.2, 0.2]
-  missing_valid: [0.2, 0.2]
-  missing_test: [0.2, 0.2]
-
-batch_size: 32
 
 seed: 420
-num_workers: 4
-precision: "32"
-max_epochs: 100
+
+trainer:
+  accelerator: gpu
+  devices: 1
+  precision: "32"
+  max_epochs: 100
+  log_every_n_steps: 1
+  early_stopping_patience: 20
+  test_after_fit: true
+
 wandb:
-  project: "simple_mml_baseline"
-  group: None
+  project: simbamm_ukb
+  group: null
+  mode: online
+  save_dir: wandb

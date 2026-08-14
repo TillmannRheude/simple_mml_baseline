@@ -1,0 +1,7 @@
+hydra-core>=1.3
+numpy>=1.24
+pytorch-lightning>=1.9
+schedulefree>=1.4
+torch>=2.0
+torchmetrics>=1.0
+wandb>=0.15
