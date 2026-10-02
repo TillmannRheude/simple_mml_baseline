@@ -175,10 +175,12 @@ class IMDer(nn.Module):
             curr_conds = torch.cat(cond_parts, dim=1)
             cond_mask = torch.cat(cond_mask_parts, dim=1)
             
-            # Create loss mask: train if target is missing and at least one condition is present
-            target_is_missing = target_mask.all(dim=1)
+            # Train against observed targets. Missing targets contain only the
+            # zero-filled placeholder produced by the shared architecture and
+            # therefore cannot provide a reconstruction target.
+            target_is_available = ~target_mask.all(dim=1)
             at_least_one_cond_present = ~cond_mask.all(dim=1) if cond_seq_len > 0 else torch.zeros(bs, device=src_mask.device, dtype=torch.bool)
-            loss_mask_per_sample = target_is_missing & at_least_one_cond_present
+            loss_mask_per_sample = target_is_available & at_least_one_cond_present
 
             # Prepare conditioning mask for the DDPM
             src_mask_scoremodel = cond_mask.repeat(self.si, 1)
@@ -351,7 +353,8 @@ class IMDer(nn.Module):
 
         # Reconstruction Loss (Lrec)
         loss_recon = nn.functional.mse_loss(x_imputed_final, x, reduction="none")
-        mask_recon = src_mask.unsqueeze(-1).expand_as(loss_recon)
+        # Reconstruction supervision is available only for observed tokens.
+        mask_recon = (~src_mask).unsqueeze(-1).expand_as(loss_recon)
         if mask_recon.sum() > 0:
             reconstruction_loss = loss_recon[mask_recon].mean()
         else:

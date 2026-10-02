@@ -120,19 +120,40 @@ class Optimal_Multimodal_Information_Bottleneck_Transformer(nn.Module):
 
     def create_concatenated_mask(
             self, 
-            modality_mask: torch.Tensor, 
+            modality_mask: Union[torch.Tensor, List[torch.Tensor]],
             unimodal_sequences: List[torch.Tensor]
     ) -> torch.Tensor:
-        # modality_mask is (bs, num_modalities)
-        # unimodal_sequences is a list of tensors (bs, seq_len_i, dim)
+        """Create the token-level mask expected by the fusion transformer.
+
+        With ``full_seq=False``, the architecture supplies one modality-level
+        mask of shape ``(batch_size, num_modalities)``. With
+        ``full_seq=True``, it supplies one token-level mask of shape
+        ``(batch_size, seq_len_i)`` per modality.
+        """
+        if isinstance(modality_mask, list):
+            if len(modality_mask) != len(unimodal_sequences):
+                raise ValueError(
+                    "The number of full-sequence masks must match the number "
+                    "of unimodal sequences."
+                )
+
+            for i, (mask, seq) in enumerate(zip(modality_mask, unimodal_sequences)):
+                if mask.shape != seq.shape[:2]:
+                    raise ValueError(
+                        f"Mask {i} has shape {tuple(mask.shape)}, but its "
+                        f"sequence has shape {tuple(seq.shape[:2])}."
+                    )
+
+            return torch.cat(modality_mask, dim=1)
+
+        # Expand the modality-level mask over each modality's sequence length.
         masks = []
         for i, seq in enumerate(unimodal_sequences):
             seq_len = seq.shape[1]
-            # modality_mask[:, i] is (bs,). We need (bs, seq_len_i)
             mask_i = modality_mask[:, i].unsqueeze(1).expand(-1, seq_len)
             masks.append(mask_i)
         
-        return torch.cat(masks, dim=1) # shape: (bs, sum(seq_lens))
+        return torch.cat(masks, dim=1)
 
     def _kl_divergence_bernoulli_with_logits(self, l_p: torch.Tensor, l_q: torch.Tensor) -> torch.Tensor:
         """ 

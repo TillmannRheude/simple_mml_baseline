@@ -25,7 +25,7 @@ class SqueezeLayer(nn.Module):
         super().__init__()
 
     def forward(self, x):
-        return x.squeeze()
+        return x.squeeze(dim=1)
 
 class AUG_Transformer(nn.Module):
 
@@ -224,7 +224,7 @@ class AUG_Transformer(nn.Module):
             # check if y has negative values 
             if torch.any(y < 0):
                 y = self.convert_y_chsims(y)
-            y = F.one_hot(y.squeeze().long(), num_classes=self.dim_output).float()
+            y = F.one_hot(y.reshape(-1).long(), num_classes=self.dim_output).float()
         # Ensure y is float for BCE
         y = y.float()
         # Ensure shape matches logits [Batch, 1] for single-label tasks

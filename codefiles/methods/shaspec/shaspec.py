@@ -137,36 +137,38 @@ class Shared_Specific_Feature_Modelling_Transformer(nn.Module):
         
         x_list = torch.chunk(x, chunks=self.num_modalities, dim=1)
         mask_list = torch.chunk(src_mask, chunks=self.num_modalities, dim=1)
-        
-        available_r = [] # Shared features
-        available_s = [] # Specific features
-        available_indices = []
+        modality_is_available = ~src_mask
+
+        shared_features = []
+        specific_features = []
 
         for i in range(self.num_modalities):
-            # A modality is considered missing if its mask is all True (all padded)
-            if not torch.all(mask_list[i]):
-                r_i = self._run_encoder(self.shared_encoder, x_list[i], mask_list[i])
-                s_i = self._run_encoder(self.specific_encoders[i], x_list[i], mask_list[i])
-                available_r.append(r_i)
-                available_s.append(s_i)
-                available_indices.append(i)
+            # Run the encoders for the complete batch. The padding mask prevents
+            # missing modality tokens from contributing to the CLS embedding;
+            # the per-sample availability mask below decides whether to use the
+            # resulting feature or a generated shared feature.
+            shared_features.append(
+                self._run_encoder(self.shared_encoder, x_list[i], mask_list[i])
+            )
+            specific_features.append(
+                self._run_encoder(self.specific_encoders[i], x_list[i], mask_list[i])
+            )
 
         # Generate features for the decoder
-        r_fused = torch.mean(torch.stack(available_r, dim=0), dim=0)
+        shared_stack = torch.stack(shared_features, dim=1)
+        available_weights = modality_is_available.unsqueeze(-1).to(shared_stack.dtype)
+        num_available = available_weights.sum(dim=1).clamp(min=1.0)
+        r_fused = (shared_stack * available_weights).sum(dim=1) / num_available
+
         features_for_decoder = []
-        
-        available_idx_iterator = 0
         for i in range(self.num_modalities):
-            if i in available_indices:
-                r_i = available_r[available_idx_iterator]
-                s_i = available_s[available_idx_iterator]
-                # Residual Fusion for available modalities
-                f_i = self.f_projections[i](torch.cat([r_i, s_i], dim=-1)) + r_i
-                features_for_decoder.append(f_i)
-                available_idx_iterator += 1
-            else:
-                # Feature Generation for missing modalities
-                features_for_decoder.append(r_fused)
+            r_i = shared_features[i]
+            s_i = specific_features[i]
+            f_i = self.f_projections[i](torch.cat([r_i, s_i], dim=-1)) + r_i
+            use_observed_feature = modality_is_available[:, i].unsqueeze(-1)
+            features_for_decoder.append(
+                torch.where(use_observed_feature, f_i, r_fused)
+            )
 
         # Decoder
         decoder_input = torch.stack(features_for_decoder, dim=1) # (B, N_modalities, D)
@@ -178,27 +180,46 @@ class Shared_Specific_Feature_Modelling_Transformer(nn.Module):
 
         # Auxiliary Losses
         # DA Loss: L1 distance between shared features
-        da_loss = 0.0
-        if len(available_r) > 1:
-            for i in range(len(available_r)):
-                for j in range(i + 1, len(available_r)):
-                    da_loss += torch.mean(torch.abs(available_r[i] - available_r[j]))
-            # Normalize by the number of pairs
-            num_pairs = len(available_r) * (len(available_r) - 1) / 2
-            da_loss = da_loss / num_pairs
+        da_losses = []
+        for i in range(self.num_modalities):
+            for j in range(i + 1, self.num_modalities):
+                both_available = (
+                    modality_is_available[:, i] & modality_is_available[:, j]
+                )
+                if both_available.any():
+                    da_losses.append(
+                        torch.mean(torch.abs(
+                            shared_features[i][both_available]
+                            - shared_features[j][both_available]
+                        ))
+                    )
+        da_loss = (
+            torch.stack(da_losses).mean()
+            if da_losses
+            else x.new_zeros(())
+        )
 
         # DC Loss: Domain classification on specific features
-        dc_logits = [self.domain_classifier_dc(s) for s in available_s]
-        
-        domain_labels = torch.tensor(available_indices, device=logits.device)
-        
-        dc_loss = 0.0
-        for i, logit in enumerate(dc_logits):
-            target = domain_labels[i].unsqueeze(0).expand(logit.shape[0])
-            dc_loss += nn.CrossEntropyLoss()(logit, target)
+        dc_losses = []
+        for i, specific_feature in enumerate(specific_features):
+            available = modality_is_available[:, i]
+            if available.any():
+                dc_logits = self.domain_classifier_dc(specific_feature[available])
+                target = torch.full(
+                    (dc_logits.shape[0],),
+                    i,
+                    device=logits.device,
+                    dtype=torch.long,
+                )
+                dc_losses.append(nn.CrossEntropyLoss()(dc_logits, target))
+        dc_loss = (
+            torch.stack(dc_losses).mean()
+            if dc_losses
+            else x.new_zeros(())
+        )
 
         output["losses"] = {}
         output["losses"]["da_loss"] = self.loss_alpha * da_loss
-        output["losses"]["dc_loss"] = self.loss_beta * (dc_loss / len(dc_logits) if dc_logits else 0.0)
+        output["losses"]["dc_loss"] = self.loss_beta * dc_loss
 
         return output

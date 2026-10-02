@@ -176,7 +176,12 @@ class Masked_Modality_Projection_Transformer(nn.Module):
         else:
             bs = x[0].shape[0]
             modalities_features = x
-            modality_is_missing = torch.cat(src_mask, dim=1)
+            # Reduce token-level masks to one missingness flag per modality.
+            # A modality is missing only when all of its tokens are masked.
+            modality_is_missing = torch.stack(
+                [mask.all(dim=1) for mask in src_mask],
+                dim=1,
+            )
             modality_is_available = ~modality_is_missing
             
         seq_lens = [f.shape[1] for f in modalities_features]
@@ -227,6 +232,10 @@ class Masked_Modality_Projection_Transformer(nn.Module):
                 query3 = real_features[source_idx]
                 key3 = value3 = X_ij
                 T_attended_j, _ = self.attn_step3(query3, key3, value3)
+                # Do not let zero-filled features from a missing source
+                # modality contribute to the target projection.
+                source_available = modality_is_available[:, source_idx]
+                T_attended_j = T_attended_j * source_available[:, None, None]
                 t_attended_list.append(T_attended_j)
             
             # Projection
@@ -241,10 +250,21 @@ class Masked_Modality_Projection_Transformer(nn.Module):
         modalities_with_loss = 0
         for j in range(self.num_modalities):
             update_mask = modality_is_missing[:, j]
-            
-            if torch.any(update_mask):
-                avg_proj_for_update = final_projections[j][update_mask]
-                loss = self.alignment_loss_fn(avg_proj_for_update, real_features[j][update_mask])
+
+            # Learn the projection only where a real target embedding and at
+            # least one observed source modality are available. Missing target
+            # rows contain zero-filled placeholders and must never be used as
+            # alignment targets.
+            source_is_available = modality_is_available.clone()
+            source_is_available[:, j] = False
+            alignment_mask = (
+                modality_is_available[:, j]
+                & source_is_available.any(dim=1)
+            )
+            if torch.any(alignment_mask):
+                projection = final_projections[j][alignment_mask]
+                target = real_features[j][alignment_mask]
+                loss = self.alignment_loss_fn(projection, target)
                 total_alignment_loss += loss
                 modalities_with_loss += 1
 
